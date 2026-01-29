@@ -1,0 +1,30 @@
+import { useSelector } from 'react-redux';
+const DashboardPage = () => {
+    const { user, isLoading } = useSelector((state) => state.auth);
+    if (isLoading) {
+        return <div>Cargando perfil...</div>;
+    }
+    return (
+        <div>
+            <h1>Dashboard</h1>
+            {user ? (
+            <>
+                <span className="text-sm font-medium">{user.full_name}</span>
+                <img 
+                    src={user.avatar_url} 
+                    alt="Perfil" 
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                    onError={(e) => {
+                        // Imagen por defecto si la URL falla
+                        e.target.src = 'https://i.ibb.co/KpVFzzcW/imagen-2025-12-12-204022336.png';
+                    }}
+                />
+            </>
+            ) : (
+            <p>No iniciado</p>
+            )}
+        </div>
+    );
+};
+
+export default DashboardPage;
