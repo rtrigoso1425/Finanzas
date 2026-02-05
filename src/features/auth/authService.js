@@ -1,7 +1,7 @@
 import { supabase } from "../supabase/supabaseClient";
 
 export const authService = {
-    async register(email, password, fullName) {
+    async register(email, password, fullName, username) {
         const { data: { publicUrl } } = supabase
             .storage
             .from('profile_photos')
@@ -13,7 +13,8 @@ export const authService = {
                 data: {
                     full_name: fullName,
                     avatar_url: publicUrl,
-                    username: email.split('@')[0],
+                    username: username,
+                    subscription: 'Basico',
                 }
             }
         });
@@ -33,4 +34,10 @@ export const authService = {
         }
         return data
     },
+    async logout() {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            throw new Error(error.message);
+        }
+    }
 }

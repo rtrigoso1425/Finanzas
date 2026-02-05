@@ -13,6 +13,7 @@ const RegisterPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullname, setFullname] = useState('');
+    const [username, setUsername] = useState('');
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -20,8 +21,25 @@ const RegisterPage = () => {
         e.preventDefault();
         setLoading(true);
         try {
-      // Enviamos los datos al authService
-            await authService.register(email, password, fullname);
+        // Enviamos los datos al authService
+            const data = await authService.register(email, password, fullname, username);
+
+            // Si el registro es exitoso pero el usuario requiere confirmación de email
+            // Supabase devuelve el usuario pero session es null
+            if (data.user && data.session === null) {
+                alert("Usuario ya registrado o requiere confirmación de correo. Revisa tu bandeja de entrada.");
+                return;
+            }
+
+            // Si todo sale bien, guardamos en Redux y redirigimos
+            dispatch(setUser({
+                id: data.user.id,
+                email: data.user.email,
+                full_name: fullname,
+                username: username,
+                subscription: 'basico',
+                avatar_url: data.user.user_metadata.avatar_url
+            }));
             alert("¡Registro exitoso!");
             navigate('/dashboard'); // Redirige al usuario tras el registro
         } catch (error) {
@@ -89,6 +107,22 @@ const RegisterPage = () => {
                                         placeholder="correo@gmail.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-black dark:text-white dark:bg-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <Label className="text-gray-700 dark:text-gray-300">
+                                    Username
+                                </Label>
+                                <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 dark:border-gray-600">
+                                    <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                    <Input
+                                        type="text"
+                                        placeholder="username"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
                                         className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-black dark:text-white dark:bg-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400"
                                         required
                                     />

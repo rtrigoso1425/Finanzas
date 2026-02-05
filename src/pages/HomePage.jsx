@@ -1,27 +1,97 @@
-import { useSelector } from 'react-redux';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { authService } from '@/features/auth/authService';
+import { logout as logoutAction } from '@/features/auth/authSlice';
 const HomePage = () => {
-    const user = useSelector(state => state.user);
-    return (
-        <div>
-            <h1>HomePage</h1>
-            {user ? (
-            <>
-                <span className="text-sm font-medium">{user.full_name}</span>
-                <img 
-                    src={user.avatar_url} 
-                    alt="Perfil" 
-                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                    onError={(e) => {
-                        // Imagen por defecto si la URL falla
-                        e.target.src = 'https://via.placeholder.com/150';
-                    }}
-                />
-            </>
-            ) : (
-            <p>No iniciado</p>
-            )}
-        </div>
-    )
-}
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isLoading } = useSelector((state) => state.auth);
 
-export default HomePage
+  const onLogout = () => {
+    authService.logout();
+    dispatch(logoutAction());
+    navigate("/login");
+  };
+
+  if (isLoading) {
+    return <div>Cargando perfil...</div>;
+  }
+
+  return (
+    <div>
+      <header
+        style={{
+          padding: "20px",
+          borderBottom: "1px solid #ccc",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <Link
+            to="/"
+            style={{ textDecoration: "none", color: "black", fontSize: "1.5rem" }}
+          >
+            Finanzas
+          </Link>
+          {user && user.subscription && (
+            <span
+              style={{
+                marginLeft: "15px",
+                color: "#555",
+                borderLeft: "1px solid #ccc",
+                paddingLeft: "15px",
+              }}
+            >
+              {user.subscription}
+            </span>
+          )}
+        </div>
+        <nav>
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              display: "flex",
+              gap: "20px",
+              alignItems: "center",
+            }}
+          >
+            {user ? (
+              <>
+                <li>
+                  <span style={{ fontStyle: "italic" }}>
+                    Hola, {user.full_name}
+                  </span>
+                </li>
+                <li>
+                  <Link to="/dashboard">Dashboard</Link>
+                </li>
+                <li>
+                  <button onClick={onLogout}>Cerrar Sesión</button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login">Login</Link>
+                </li>
+                <li>
+                  <Link to="/register">Register</Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        {/* ...contenido de la homepage... */}
+      </main>
+    </div>
+  );
+};
+
+export default HomePage;
