@@ -1,7 +1,6 @@
+// src/features/user/updateUserService.js
 import { supabase } from "../supabase/supabaseClient";
-/**
- * Convierte un File a un Blob JPEG
- */
+
 const convertToJpeg = (inputFile) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -14,32 +13,37 @@ const convertToJpeg = (inputFile) => {
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
-        
-                ctx.fillStyle = "#FFFFFF"; // Fondo para evitar negro en transparencias
+                ctx.fillStyle = "#FFFFFF"; 
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
-
                 canvas.toBlob((blob) => {
                     if (blob) resolve(blob);
                     else reject(new Error("Error en conversión"));
                 }, 'image/jpeg', 0.8);
             };
         };
-    reader.onerror = reject;
+        reader.onerror = reject;
     });
 };
 
 export const uploadProfileImageFeature = async (file, user, bucketName = 'profile_photos') => {
     if (!file) throw new Error("No hay archivo");
-    if (!user?.id || !user?.email) throw new Error("Usuario no autenticado");
-    if (!file.type.startsWith('image/')) {
-        throw new Error("El archivo seleccionado no es una imagen válida.");
+    if (!user?.id) throw new Error("Usuario no autenticado");
+    // 1. LIMPIEZA: Buscar y borrar imágenes viejas
+    const { data: oldFiles } = await supabase.storage
+        .from(bucketName)
+        .list('', { search: `avatar_${user.id}` });
+
+    if (oldFiles && oldFiles.length > 0) {
+        const filesToDelete = oldFiles.map(f => f.name);
+        await supabase.storage.from(bucketName).remove(filesToDelete);
     }
 
+    // 2. SUBIDA
     const jpegBlob = await convertToJpeg(file);
-    const fileName = `${user?.email}.jpg`;
+    const fileName = `avatar_${user.id}_${Date.now()}.jpg`;
 
-    const { data, storageError } = await supabase.storage
+    const { error: storageError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, jpegBlob, {
             contentType: 'image/jpeg',
@@ -48,18 +52,18 @@ export const uploadProfileImageFeature = async (file, user, bucketName = 'profil
 
     if (storageError) throw storageError;
 
+    // 3. OBTENER URL PÚBLICA (ESTA ES LA CLAVE)
     const { data: { publicUrl } } = supabase.storage
-    .from(bucketName)
-    .getPublicUrl(fileName);
+        .from(bucketName)
+        .getPublicUrl(fileName);
 
-    const publicUrlWithCacheBuster = `${publicUrl}?t=${Date.now()}`;
-
+    // 4. ACTUALIZAR DB
     const { error: dbError } = await supabase
-    .from('profiles')
-    .update({ avatar_url: publicUrlWithCacheBuster })
-    .eq('id', user.id); // Filtramos por el ID del usuario logueado
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
 
     if (dbError) throw dbError;
 
-    return data.path;
+    return publicUrl; 
 };

@@ -13,43 +13,53 @@ import DashboardPage from './pages/DashboardPage';
 
 function App() {
   const dispatch = useDispatch();
+
   useEffect(() => {
-    // 1. Recuperar la sesión actual al cargar/refrescar la página
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+    // Función reutilizable para obtener los datos REALES de la base de datos
+    const fetchRealProfile = async (session) => {
+      try {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
+
         if (profile && !error) {
-          // 2. SOLO despachamos una vez tengamos los datos frescos de la DB
+          // ✅ ÉXITO: Usamos los datos frescos de la tabla profiles
           dispatch(setUser({
             id: session.user.id,
             email: session.user.email,
-            ...profile
+            ...profile // Esto sobreescribe avatar_url con la URL nueva
+          }));
+        } else {
+          // Fallback por si acaso falla la DB (usamos metadatos como respaldo)
+          dispatch(setUser({
+            id: session.user.id,
+            email: session.user.email,
+            ...session.user.user_metadata
           }));
         }
-        else {
-        // Si no hay sesión, apagamos el loading directamente
-          dispatch(setUser(null)); 
-        }
+      } catch (err) {
+        console.error("Error obteniendo perfil:", err);
       }
     };
 
+    // 1. Carga inicial
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await fetchRealProfile(session);
+      } else {
+        dispatch(setUser(null));
+      }
+    };
     checkSession();
 
-    // 2. Escuchar cambios de estado (por si el token expira o cierras sesión)
+    // 2. Escuchar cambios (Login, Logout, Cambio de Pestaña)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        dispatch(setUser({
-          id: session.user.id,
-          email: session.user.email,
-          full_name: session.user.user_metadata.full_name,
-          avatar_url: session.user.user_metadata.avatar_url,
-          subscription: session.user.user_metadata.subscription,
-        }));
+        // AQUÍ ESTÁ LA MAGIA: Volvemos a pedir el perfil actualizado
+        fetchRealProfile(session);
       } else {
         dispatch(setUser(null));
       }
@@ -58,9 +68,9 @@ function App() {
     return () => subscription.unsubscribe();
   }, [dispatch]);
 
+  // ... (El resto de tu return con las Routes se queda igual)
   return (
     <Routes>
-      {/* Rutas Públicas (Sin Sidebar) */}
       <Route path="/" element={<HomePage />} />
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />
@@ -76,4 +86,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

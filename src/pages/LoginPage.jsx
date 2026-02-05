@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { authService } from '@/features/auth/authService';
+import { supabase } from '@/features/supabase/supabaseClient'; // Importar supabase
+import { useDispatch } from 'react-redux'; // Importar dispatch
+import { setUser } from '@/features/auth/authSlice'; // Importar acción
 import { Link, useNavigate } from "react-router-dom";
 import { BlurFade } from "../components/ui/blur-fade";
 import { Text_03 } from "@/components/ui/wave-text";
@@ -14,41 +17,49 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch(); // Hook de Redux
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-      // Enviamos los datos al authService
-            await authService.login(email, password);
+            // 1. Login básico (Auth)
+            const { user } = await authService.login(email, password);
+            
+            // 2. OBTENER PERFIL COMPLETO (Foto, suscripción, etc.)
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            // 3. Guardar en Redux inmediatamente
+            dispatch(setUser({
+                id: user.id,
+                email: user.email,
+                ...profile 
+            }));
+
             alert("¡Inicio de sesión exitoso!");
-            navigate('/dashboard'); // Redirige al usuario tras el login
+            navigate('/dashboard'); 
         } catch (error) {
             alert("Error: " + error.message);
         } finally {
             setLoading(false);
         }
     };
+
     return (
+        // ... (El resto de tu JSX se mantiene IDÉNTICO, solo cambia la lógica de arriba)
         <div
             className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative"
-            style={{
-                margin: 0,
-                padding: "20px",
-            }}
+            style={{ margin: 0, padding: "20px" }}
         >
             <BlurFade inView delay={0.5}>
                 <Card className="w-full max-w-md shadow-lg rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <CardHeader>
                         <div>
-                            <Link
-                                to="/"
-                                style={{
-                                    textDecoration: "none",
-                                    color: "Black",
-                                    fontSize: "1.5rem",
-                                }}
-                            >
+                            <Link to="/" style={{ textDecoration: "none", color: "Black", fontSize: "1.5rem" }}>
                                 <Text_03 text="Finanzas"/>
                             </Link>
                         </div>
@@ -62,9 +73,7 @@ const LoginPage = () => {
                     <CardContent style={{ pointerEvents: "auto", position: "relative" }}>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <Label className="text-gray-700 dark:text-gray-300">
-                                    Correo
-                                </Label>
+                                <Label className="text-gray-700 dark:text-gray-300">Correo</Label>
                                 <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 dark:border-gray-600">
                                     <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                     <Input
@@ -78,9 +87,7 @@ const LoginPage = () => {
                                 </div>
                             </div>
                             <div>
-                                <Label className="text-gray-700 dark:text-gray-300">
-                                    Contraseña
-                                </Label>
+                                <Label className="text-gray-700 dark:text-gray-300">Contraseña</Label>
                                 <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 dark:border-gray-600">
                                     <Lock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                     <Input
@@ -96,7 +103,7 @@ const LoginPage = () => {
                             <Button 
                                 type="submit" 
                                 className="w-full rounded-xl hover:cursor-pointer text-white dark:text-gray-100 bg-black dark:bg-gray-900 hover:bg-gray-800 dark:hover:bg-gray-950 font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
+                            >
                                 {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
                             </Button>
                             <div className="flex items-center gap-2 px-3 py-2">
@@ -108,7 +115,7 @@ const LoginPage = () => {
                 </Card>
             </BlurFade>
         </div>
-    )
-}
+    );
+};
 
 export default LoginPage;
