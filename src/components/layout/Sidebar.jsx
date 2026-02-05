@@ -7,7 +7,8 @@ import {
   Settings,
   BarChart3,
   ChevronDown,
-  Home,
+  Search,
+  Receipt,
   Users,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -200,6 +201,13 @@ export function Sidebar({ isCollapsed, onToggle }) {
           isCollapsed={isCollapsed}
         />
         <SidebarLink
+          icon={Search}
+          label="Buscar"
+          to="/buscar"
+          active={isActive("/buscar")}
+          isCollapsed={isCollapsed}
+        />
+        <SidebarLink
           icon={BookOpen}
           label="Objetivos"
           to="/objetivos"
@@ -211,6 +219,13 @@ export function Sidebar({ isCollapsed, onToggle }) {
           label="Objetivos grupales"
           to="/objetivos-grupales"
           active={isActive("/objetivos-grupales")}
+          isCollapsed={isCollapsed}
+        />
+        <SidebarLink
+          icon={Receipt}
+          label="Suscripción"
+          to="/suscripcion"
+          active={isActive("/suscripcion")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink

@@ -1,6 +1,4 @@
 import { useSelector } from 'react-redux';
-import { supabase } from '@/features/supabase/supabaseClient';
-import { ImageUploader } from '../components/ImageUploader';
 const DashboardPage = () => {
     const { user, isLoading } = useSelector((state) => state.auth);
     if (isLoading) {
@@ -22,7 +20,6 @@ const DashboardPage = () => {
                         e.target.src = 'https://i.ibb.co/k6WjwY6N/default.jpg';
                     }}
                 />
-                <ImageUploader />
             </>
             ) : (
             <p>No iniciado</p>

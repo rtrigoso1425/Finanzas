@@ -1,4 +1,3 @@
-// src/features/user/updateUserService.js
 import { supabase } from "../supabase/supabaseClient";
 
 const convertToJpeg = (inputFile) => {
@@ -28,42 +27,39 @@ const convertToJpeg = (inputFile) => {
 
 export const uploadProfileImageFeature = async (file, user, bucketName = 'profile_photos') => {
     if (!file) throw new Error("No hay archivo");
-    if (!user?.id) throw new Error("Usuario no autenticado");
-    // 1. LIMPIEZA: Buscar y borrar imágenes viejas
-    const { data: oldFiles } = await supabase.storage
-        .from(bucketName)
-        .list('', { search: `avatar_${user.id}` });
+    if (!user?.email) throw new Error("Usuario sin email");
 
-    if (oldFiles && oldFiles.length > 0) {
-        const filesToDelete = oldFiles.map(f => f.name);
-        await supabase.storage.from(bucketName).remove(filesToDelete);
-    }
-
-    // 2. SUBIDA
+    // 1. CONVERTIR A JPEG
     const jpegBlob = await convertToJpeg(file);
-    const fileName = `avatar_${user.id}_${Date.now()}.jpg`;
+    
+    // 2. NOMBRE FIJO (Sin timestamp aquí)
+    // Al usar siempre el mismo nombre, Supabase sobreescribirá el archivo anterior.
+    // Así mantienes tu Storage limpio con solo 1 foto por usuario.
+    const fileName = `${user.email}.jpg`;
 
+    // 3. SUBIDA (Con upsert: true para forzar la sobreescritura)
     const { error: storageError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, jpegBlob, {
             contentType: 'image/jpeg',
-            upsert: true
+            upsert: true 
         });
 
     if (storageError) throw storageError;
 
-    // 3. OBTENER URL PÚBLICA (ESTA ES LA CLAVE)
+    // 4. OBTENER URL PÚBLICA
     const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(fileName);
 
-    // 4. ACTUALIZAR DB
+    const publicUrlWithCacheBuster = `${publicUrl}?t=${Date.now()}`;
+
     const { error: dbError } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: publicUrlWithCacheBuster })
         .eq('id', user.id);
 
     if (dbError) throw dbError;
 
-    return publicUrl; 
+    return publicUrlWithCacheBuster; 
 };

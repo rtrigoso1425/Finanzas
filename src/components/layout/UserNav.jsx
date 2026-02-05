@@ -56,7 +56,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to="/profile"> {/* Ruta futura */}
+            <Link to={`/profile/${user?.id}`}>
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </Link>
