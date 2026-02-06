@@ -15,11 +15,13 @@ const RegisterPage = () => {
     const [fullname, setFullname] = useState('');
     const [username, setUsername] = useState('');
     const [isLoading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
         // Enviamos los datos al authService
             const data = await authService.register(email, password, fullname, username);
@@ -43,7 +45,24 @@ const RegisterPage = () => {
             alert("¡Registro exitoso!");
             navigate('/dashboard'); // Redirige al usuario tras el registro
         } catch (error) {
-            alert("Error: " + error.message);
+            // Manejo específico de errores de Supabase
+            let errorMessage = "Error al registrarse";
+            
+            if (error.message.includes('duplicate') || error.message.includes('Duplicate')) {
+                errorMessage = "El correo o nombre de usuario ya está registrado. Por favor, usa otro.";
+            } else if (error.message.includes('email')) {
+                errorMessage = "El correo electrónico ya está en uso.";
+            } else if (error.message.includes('username')) {
+                errorMessage = "El nombre de usuario ya está en uso.";
+            } else if (error.message.includes('password')) {
+                errorMessage = "La contraseña no cumple con los requisitos de seguridad.";
+            } else if (error.status === 422) {
+                errorMessage = "El correo o nombre de usuario ya está registrado.";
+            } else {
+                errorMessage = error.message || "Error desconocido al registrarse";
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -79,6 +98,11 @@ const RegisterPage = () => {
                         </p>
                     </CardHeader>
                     <CardContent style={{ pointerEvents: "auto", position: "relative" }}>
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                            </div>
+                        )}
                         <form onSubmit={handleRegister} className="space-y-4">
                             <div>
                                 <Label className="text-gray-700 dark:text-gray-300">
@@ -147,6 +171,7 @@ const RegisterPage = () => {
                             <Button 
                                 type="submit" 
                                 className="w-full rounded-xl hover:cursor-pointer text-white dark:text-gray-100 bg-black dark:bg-gray-900 hover:bg-gray-800 dark:hover:bg-gray-950 font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                disabled={isLoading}
                                 >
                                 {isLoading ? "Registrando..." : "Registrarse"}
                             </Button>

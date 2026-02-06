@@ -203,8 +203,8 @@ export function Sidebar({ isCollapsed, onToggle }) {
         <SidebarLink
           icon={Search}
           label="Buscar"
-          to="/buscar"
-          active={isActive("/buscar")}
+          to="/search"
+          active={isActive("/search")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
@@ -219,6 +219,13 @@ export function Sidebar({ isCollapsed, onToggle }) {
           label="Objetivos grupales"
           to="/objetivos-grupales"
           active={isActive("/objetivos-grupales")}
+          isCollapsed={isCollapsed}
+        />
+        <SidebarLink
+          icon={Users}
+          label="Amigos"
+          to="/friends"
+          active={isActive("/friends")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink

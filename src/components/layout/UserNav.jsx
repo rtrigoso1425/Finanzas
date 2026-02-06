@@ -14,7 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useDispatch, useSelector } from "react-redux"
-import { logout } from "@/features/auth/authSlice" //
+import { logout } from "@/features/auth/authSlice"
+import { authService } from "@/features/auth/authService"
 import { Link } from "react-router-dom"
 import { LogOut, Settings, User } from "lucide-react"
 
@@ -30,8 +31,18 @@ export function UserNav() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      // Primero cerramos la sesión en Supabase (esto borra el token del navegador)
+      await authService.logout();
+      
+      // Opcional: Limpiamos Redux inmediatamente para que la UI responda rápido.
+      // (Aunque tu App.jsx también lo haría automáticamente gracias al listener)
+      dispatch(logout()); 
+      
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
   };
 
   return (

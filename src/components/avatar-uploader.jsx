@@ -1,6 +1,7 @@
 'use client';;
 import React from 'react';
 import Cropper from 'react-easy-crop';
+import { useDispatch } from 'react-redux';
 import {
 	Modal,
 	ModalBody,
@@ -12,10 +13,13 @@ import {
 } from '@/components/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { setUser } from '@/features/auth/authSlice';
+import { uploadProfileImageFeature } from '@/features/user/updateUserService';
 
 export function AvatarUploader({
     children,
     onUpload,
+    user,
     aspect = 1,
     maxSizeMB = 20,
     acceptedTypes = ['jpeg', 'jpg', 'png', 'webp']
@@ -24,6 +28,7 @@ export function AvatarUploader({
 	const [zoom, setZoom] = React.useState(1);
 
 	const [isPending, setIsPending] = React.useState(false);
+	const [error, setError] = React.useState(null);
 	const [photo, setPhoto] = React.useState({
 		url: '',
 		file: null,
@@ -31,20 +36,27 @@ export function AvatarUploader({
 	const [croppedAreaPixels, setCroppedAreaPixels] = React.useState(null);
 
 	const handleFileChange = (e) => {
+		setError(null);
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		const img_ext = file.name.substring(file.name.lastIndexOf('.') + 1);
-		const validExt = acceptedTypes.includes(img_ext);
+		try {
+			const img_ext = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+			const validExt = acceptedTypes.includes(img_ext);
 
-		if (!validExt) {
-			throw new Error('Selected file is not a supported image type');
-		} else {
-			if (parseFloat(String(file.size)) / (1024 * 1024) >= maxSizeMB) {
-				throw new Error('Selected image is too large');
-			} else {
-				setPhoto({ url: URL.createObjectURL(file), file });
+			if (!validExt) {
+				setError(`Tipo de archivo no soportado. Solo se aceptan: ${acceptedTypes.join(', ')}`);
+				return;
 			}
+
+			if (parseFloat(String(file.size)) / (1024 * 1024) >= maxSizeMB) {
+				setError(`La imagen es demasiado grande. Máximo: ${maxSizeMB}MB`);
+				return;
+			}
+
+			setPhoto({ url: URL.createObjectURL(file), file });
+		} catch (err) {
+			setError('Error al procesar la imagen. Por favor intenta de nuevo.');
 		}
 	};
 
@@ -53,10 +65,20 @@ export function AvatarUploader({
 	};
 
 	const [open, onOpenChange] = React.useState(false);
+	const dispatch = useDispatch();
+
+	const handleOpenChange = (newOpen) => {
+		if (!newOpen) {
+			setError(null);
+			setPhoto({ url: '', file: null });
+		}
+		onOpenChange(newOpen);
+	};
 
 	const handleUpdate = async () => {
 		if (photo?.file && croppedAreaPixels) {
 			setIsPending(true);
+			setError(null);
 			try {
 				const croppedImg = await getCroppedImg(photo?.url, croppedAreaPixels);
 				if (!croppedImg || !croppedImg.file) {
@@ -67,32 +89,42 @@ export function AvatarUploader({
                     type: photo.file?.type ?? 'image/jpeg',
                 });
 
-				await onUpload(file);
+				// Si user está disponible, usar la lógica de subida a BD
+				if (user) {
+					const newAvatarUrl = await uploadProfileImageFeature(file, user);
+					
+					// Actualizar Redux con la nueva URL
+					dispatch(setUser({ ...user, avatar_url: newAvatarUrl }));
+				} else if (onUpload) {
+					// Si no hay user pero hay onUpload callback, usarlo
+					await onUpload(file);
+				} else {
+					throw new Error('No upload method available');
+				}
+
 				setPhoto({ url: '', file: null });
-				onOpenChange(false);
-			} catch (error) {
-				throw error instanceof Error
-					? error
-					: new Error('Failed to update image');
+				handleOpenChange(false);
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'Error al subir la imagen');
 			} finally {
 				setIsPending(false);
 			}
 		} else {
-			throw new Error('No image selected for upload');
+			setError('Por favor selecciona una imagen y ajústala antes de guardar');
 		}
 	};
 
 	return (
         <Modal
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={handleOpenChange}
             drawerProps={{
 				dismissible: photo?.file ? false : true,
 			}}>
             <ModalTrigger asChild>{children}</ModalTrigger>
             <ModalContent className="h-max md:max-w-md">
 				<ModalHeader>
-					<ModalTitle>Upload Image</ModalTitle>
+					<ModalTitle>Subir Imagen</ModalTitle>
 				</ModalHeader>
 				<ModalBody className="space-y-2">
 					<Input
@@ -100,6 +132,11 @@ export function AvatarUploader({
                         onChange={handleFileChange}
                         type="file"
                         accept="image/*" />
+					{error && (
+						<div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-800">
+							{error}
+						</div>
+					)}
 					{photo?.file && (
 						<div
                             className="bg-accent relative aspect-square w-full overflow-hidden rounded-lg">
@@ -126,16 +163,16 @@ export function AvatarUploader({
                         variant="outline"
                         color="danger"
                         disabled={isPending}
-                        onClick={() => onOpenChange(false)}>
-						Cancel
+                        onClick={() => handleOpenChange(false)}>
+						Cancelar
 					</Button>
 
 					<Button
                         className="w-full"
                         type="button"
                         onClick={handleUpdate}
-                        disabled={isPending}>
-						{isPending ? 'Uploading...' : 'Update'}
+                        disabled={isPending || !photo?.file}>
+						{isPending ? 'Subiendo...' : 'Guardar'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>
