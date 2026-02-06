@@ -196,8 +196,8 @@ export function Sidebar({ isCollapsed, onToggle }) {
         <SidebarLink
           icon={BarChart3}
           label="Mis ingresos"
-          to="/ingresos"
-          active={isActive("/ingresos")}
+          to="/incomes"
+          active={isActive("/incomes")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
@@ -210,15 +210,15 @@ export function Sidebar({ isCollapsed, onToggle }) {
         <SidebarLink
           icon={BookOpen}
           label="Objetivos"
-          to="/objetivos"
-          active={isActive("/objetivos")}
+          to="/objetives"
+          active={isActive("/objetives")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
           icon={Users}
           label="Objetivos grupales"
-          to="/objetivos-grupales"
-          active={isActive("/objetivos-grupales")}
+          to="/grupal-objetives"
+          active={isActive("/grupal-objetives")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
@@ -231,8 +231,8 @@ export function Sidebar({ isCollapsed, onToggle }) {
         <SidebarLink
           icon={Receipt}
           label="Suscripción"
-          to="/suscripcion"
-          active={isActive("/suscripcion")}
+          to="/subscription"
+          active={isActive("/subscription")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink

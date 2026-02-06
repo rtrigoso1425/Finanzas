@@ -14,6 +14,10 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import SearchPage from './pages/SearchPage';
 import FriendsPage from './pages/FriendsPage';
+import ObjetivesPage from './pages/ObjetivesPage';
+import IncomesPage from './pages/IncomesPage';
+import GrupalObjetivesPage from './pages/GrupalObjetivesPage';
+import SubscriptionPage from './pages/SubscriptionPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -87,6 +91,10 @@ function App() {
           <Route path="/friends" element={<FriendsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/objetives" element={<ObjetivesPage />} />
+          <Route path="/incomes" element={<IncomesPage />} />
+          <Route path="/grupal-objetives" element={<GrupalObjetivesPage />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
