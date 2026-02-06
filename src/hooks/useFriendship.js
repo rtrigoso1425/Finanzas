@@ -71,10 +71,11 @@ export const useFriendship = (currentUser, targetUserId) => {
         setLoading(true);
         try {
             await friendshipService.removeFriendship(friendshipId);
-            setStatus('rejected');
-
+            setStatus('none');
+            setFriendshipId(null);
         } catch (error) {  
-            console.error(error); 
+            console.error("Error al rechazar solicitud:", error);
+            alert("Error al rechazar la solicitud");
         } finally {
             setLoading(false);
         }
