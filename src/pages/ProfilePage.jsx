@@ -4,14 +4,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useFriendship } from '@/hooks/useFriendship';
 import { fetchUserById, clearSearchedUser } from '../features/user/userSlice';
-import { Loader2, UserPlus, Clock, Check } from "lucide-react";
+import { Loader2, UserPlus, Clock, Check, X } from "lucide-react";
 const ProfilePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user: currentUser } = useSelector((state) => state.auth);
     const { id: userId } = useParams();
     const { searchedUser, status, error } = useSelector((state) => state.user);
-    const { status: friendshipStatus, loading, sendFriendRequest, acceptFriendRequest } = useFriendship(currentUser, userId);
+    const { status: friendshipStatus, loading, sendFriendRequest, acceptFriendRequest, rejectFriendRequest } = useFriendship(currentUser, userId);
     useEffect(() => {
         if (userId) {
             dispatch(fetchUserById(userId));
@@ -33,7 +33,6 @@ const ProfilePage = () => {
     if (!searchedUser) return null;
 
     const renderButton = () => {
-    // Caso 1: Es tu propio perfil
         if (currentUser?.id === userId) return null;
 
         if (loading) {
@@ -59,9 +58,14 @@ const ProfilePage = () => {
             );
         case 'pending_received':
             return (
-                <button onClick={acceptFriendRequest} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-                    <Check size={16} /> Aceptar Solicitud
-                </button>
+                <div>
+                    <button onClick={acceptFriendRequest} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                        <Check size={16} /> Aceptar Solicitud
+                    </button>
+                    <button onClick={rejectFriendRequest} className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+                        <X size={16} /> Rechazar Solicitud
+                    </button>
+                </div>
             );
         default: // 'none'
             return (

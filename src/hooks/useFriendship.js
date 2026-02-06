@@ -66,5 +66,19 @@ export const useFriendship = (currentUser, targetUserId) => {
         }
     };
 
-    return { status, loading, sendFriendRequest, acceptFriendRequest };
+    const rejectFriendRequest = async () => {
+        if (!friendshipId) return;
+        setLoading(true);
+        try {
+            await friendshipService.removeFriendship(friendshipId);
+            setStatus('rejected');
+
+        } catch (error) {  
+            console.error(error); 
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { status, loading, sendFriendRequest, acceptFriendRequest, rejectFriendRequest };
 };
