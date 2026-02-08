@@ -40,7 +40,6 @@ const LoginPage = () => {
                 ...profile 
             }));
 
-            alert("¡Inicio de sesión exitoso!");
             navigate('/dashboard'); 
         } catch (error) {
             alert("Error: " + error.message);

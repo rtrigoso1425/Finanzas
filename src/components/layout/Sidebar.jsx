@@ -6,14 +6,12 @@ import {
   BookOpen,
   Settings,
   BarChart3,
-  ChevronDown,
   Search,
   Receipt,
   Users,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import React from "react";
 
 // SidebarLink mejorado para mostrar iconos y labels según colapsado
@@ -23,7 +21,6 @@ function SidebarLink({ icon: Icon, label, to, active, isCollapsed, isSubItem = f
       to={to}
       className={cn(
         "flex items-center gap-3 py-2.5 rounded-lg transition-all duration-200 group font-medium",
-        // Estilo activo "pestaña"
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
@@ -64,65 +61,6 @@ function SidebarLink({ icon: Icon, label, to, active, isCollapsed, isSubItem = f
   }
 
   return content;
-}
-
-// SidebarAccordion mejorado para manejar secciones abiertas/cerradas
-function SidebarAccordion({ title, icon: Icon, isCollapsed, children, isOpen, onToggle }) {
-  const headerContent = (
-    <div
-      className={cn(
-        "flex items-center gap-3 py-2.5 rounded-lg transition-all duration-200 group font-medium cursor-pointer",
-        "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-        isCollapsed ? "h-10 w-10 justify-center p-0 mx-auto" : "px-3"
-      )}
-    >
-      {/* protect Icon too - ensure visible color in light mode */}
-      {Icon && <Icon className="h-5 w-5 flex-shrink-0 text-muted-foreground" />}
-      <span
-        className={cn(
-          "transition-opacity whitespace-nowrap",
-          isCollapsed && "opacity-0 hidden"
-        )}
-      >
-        {title}
-      </span>
-      {/* Flecha de expandir/contraer */}
-      <ChevronDown
-        className={cn(
-          "ml-auto h-4 w-4 transition-transform",
-          isOpen && "rotate-180",
-          isCollapsed && "opacity-0 hidden"
-        )}
-      />
-    </div>
-  );
-
-  // Si está colapsado, no hay acordeón, solo un link con tooltip
-  if (isCollapsed) {
-    return (
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>{headerContent}</TooltipTrigger>
-          <TooltipContent side="right">
-            <p>{title}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={onToggle}>
-      <CollapsibleTrigger asChild>
-        {headerContent}
-      </CollapsibleTrigger>
-      <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden">
-        <div className="mt-1 space-y-1">
-          {children} {/* Aquí van los SidebarLink anidados */}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
 }
 
 // Componente principal Sidebar (UNA SÓLA VISTA)

@@ -18,6 +18,7 @@ import ObjetivesPage from './pages/ObjetivesPage';
 import IncomesPage from './pages/IncomesPage';
 import GrupalObjetivesPage from './pages/GrupalObjetivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -95,6 +96,7 @@ function App() {
           <Route path="/incomes" element={<IncomesPage />} />
           <Route path="/grupal-objetives" element={<GrupalObjetivesPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

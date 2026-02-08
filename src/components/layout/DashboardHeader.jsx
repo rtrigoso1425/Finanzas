@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/layout/UserNav";
+import { NotificationsNav } from "@/components/layout/NotificationsNav";
 import { useSelector } from "react-redux";
 
 export function DashboardHeader() { // isCollapsed y onToggle ELIMINADOS
@@ -15,6 +16,7 @@ export function DashboardHeader() { // isCollapsed y onToggle ELIMINADOS
       </div>
 
       <div className="flex items-center gap-4">
+        <NotificationsNav />
         <UserNav />
       </div>
     </header>

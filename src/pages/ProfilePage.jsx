@@ -10,7 +10,7 @@ const ProfilePage = () => {
     const navigate = useNavigate();
     const { user: currentUser } = useSelector((state) => state.auth);
     const { id: userId } = useParams();
-    const { searchedUser, status, error } = useSelector((state) => state.user);
+    const { searchedUser, status } = useSelector((state) => state.user);
     const { status: friendshipStatus, loading, sendFriendRequest, acceptFriendRequest, rejectFriendRequest } = useFriendship(currentUser, userId);
     useEffect(() => {
         if (userId) {
@@ -46,35 +46,44 @@ const ProfilePage = () => {
     switch (friendshipStatus) {
         case 'accepted':
             return (
-                <button disabled className="bg-green-100 text-green-700 border border-green-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2">
-                    <Check size={16} /> Amigos
-                </button>
+                <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
+                    <button disabled className="bg-green-100 text-green-700 border border-green-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2">
+                        <Check size={16} /> Amigos
+                    </button>
+                </div>
             );
         case 'pending_sent':
             return (
-                <button disabled className="bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2 cursor-not-allowed">
-                    <Clock size={16} /> Pendiente
-                </button>
+                <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
+                    <button disabled className="bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2 cursor-not-allowed">
+                        <Clock size={16} /> Pendiente
+                    </button>
+                </div>
             );
         case 'pending_received':
             return (
-                <div>
-                    <button onClick={acceptFriendRequest} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-                        <Check size={16} /> Aceptar Solicitud
-                    </button>
-                    <button onClick={rejectFriendRequest} className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-                        <X size={16} /> Rechazar Solicitud
-                    </button>
+                <div className='max-w-md mx-auto text-center mt-4 justify-center'>
+                    <span> Este usuario te ha enviado una solicitud de amistad</span>
+                    <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
+                        <button onClick={acceptFriendRequest} className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1">
+                            <Check size={20} /> Aceptar
+                        </button>
+                        <button onClick={rejectFriendRequest} className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1">
+                            <X size={20} /> Rechazar
+                        </button>
+                    </div>
                 </div>
             );
         default: // 'none'
             return (
-                <button
-                    onClick={sendFriendRequest}
-                    className="bg-gray-900 dark:bg-zinc-800 text-white hover:bg-emerald-600 dark:hover:bg-emerald-600 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2"
-                >
-                    <UserPlus size={16} /> Agregar
-                </button>
+                <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
+                    <button
+                        onClick={sendFriendRequest}
+                        className="bg-gray-900 dark:bg-zinc-800 text-white hover:bg-emerald-600 dark:hover:bg-emerald-600 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2"
+                    >
+                        <UserPlus size={16} /> Agregar
+                    </button>
+                </div>
             );
         }
     };
