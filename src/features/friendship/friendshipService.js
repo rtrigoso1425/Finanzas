@@ -36,7 +36,7 @@ export const friendshipService = {
     async acceptRequest(friendshipId) {
         const { data, error } = await supabase
         .from('friendship')
-        .update({ state: 'accepted' })
+        .update({ state: 'accepted', updated_at: new Date() })
         .eq('id', friendshipId)
         .select();
 
@@ -66,6 +66,26 @@ export const friendshipService = {
       ` ) // Hacemos un JOIN para traer los datos del perfil que te agregó
         .eq('friend_requested', myId)
         .eq('state', 'pending');
+
+        if (error) throw error;
+        return data;
+    },
+    
+    // 6 Obtener Amigos (opcional, para mostrar la lista de amigos en el perfil)
+    async getFriends(myId) {
+        const { data, error } = await supabase
+        .from('friendship')
+        .select(`
+            *,
+            requester:profiles!friendship_friendship_requester_fkey (
+            id, username, full_name, avatar_url
+            ),
+            requested:profiles!friendship_friend_requested_fkey (
+            id, username, full_name, avatar_url
+            )
+        ` )
+        .eq('state', 'accepted')
+        .or(`friendship_requester.eq.${myId},friend_requested.eq.${myId}`);
 
         if (error) throw error;
         return data;

@@ -1,100 +1,137 @@
-import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom"; // useNavigate estaba duplicado
 import { useNotifications } from "@/hooks/useNotifications";
-import { getTimeAgo } from "@/utils/timeAgo";
-import { useNavigate } from "react-router-dom";
+import { getTimeAgo } from "@/utils/timeAgo"; // Asegúrate de tener esta utilidad o usa una librería
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "@/components/ui/avatar"
+} from "@/components/ui/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Bell,
     FileText,
     UserPlus,
+    Users,
+    Loader2 // Importamos icono de carga
 } from "lucide-react";
 
+// Función auxiliar para iniciales
 const getInitials = (name) => {
     if (!name) return "?";
     const names = name.split(' ');
     const initials = names.map(n => n[0]).join('');
     return initials.substring(0, 2).toUpperCase();
-}
+};
 
 export function NotificationsNav() {
-    const notifications = useNotifications();
-    const notificationsCount = notifications.length;
+    // 1. CORRECCIÓN: Desestructuramos para obtener el array y el loading
+    const { notifications, loading } = useNotifications();
     const [tab, setTab] = useState("all");
     const navigate = useNavigate();
 
-    const filtered = tab === "unread" ? notifications.filter((n) => n.type==="friend_request") : notifications;
+    // Filtros seguros (usando optional chaining por seguridad)
+    const notificationsCount = notifications?.filter((n) => n.type === "friend_request").length || 0;
+    
+    const filtered = tab === "friend_request" 
+        ? notifications?.filter((n) => n.type === "friend_request") 
+        : notifications;
 
     return (
         <Popover>
             <PopoverTrigger asChild>
                 <Button
                     size="icon"
-                    variant="outline"
-                    className="relative"
-                    aria-label="Open notifications">
-                    <Bell size={16} strokeWidth={2} aria-hidden="true" />
+                    variant="ghost" // Cambié a ghost para que se integre mejor en navbars
+                    className="relative rounded-full"
+                    aria-label="Open notifications"
+                >
+                    <Bell size={20} strokeWidth={2} />
                     {notificationsCount > 0 && (
-                        <Badge className="absolute -top-2 left-full min-w-5 -translate-x-1/2 px-1">
-                        {notificationsCount > 99 ? "99+" : notificationsCount}
-                        </Badge>
+                        <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                        </span>
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[380px] p-0">
-                {/* Header with Tabs + Mark All */}
-                <Tabs value={tab} onValueChange={setTab}>
-                    <div className="flex items-center justify-between border-b px-3 py-2">
-                        <TabsList className="bg-transparent">
-                            <TabsTrigger value="all" className="text-sm">Todas</TabsTrigger>
-                                <TabsTrigger value="unread" className="text-sm">
-                                Solicitud de amistad {notificationsCount > 0 && <Badge className="ml-1">{notificationsCount}</Badge>}
+            
+            <PopoverContent className="w-[380px] p-0" align="end">
+                <Tabs value={tab} onValueChange={setTab} className="w-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b px-4 py-3">
+                        <h4 className="font-semibold">Notificaciones</h4>
+                    </div>
+                    
+                    {/* Tabs */}
+                    <div className="px-2 pt-2">
+                        <TabsList className="w-full grid grid-cols-2">
+                            <TabsTrigger value="all">Todas</TabsTrigger>
+                            <TabsTrigger value="friend_request" className="relative">
+                                Solicitudes
+                                {notificationsCount > 0 && (
+                                    <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
+                                        {notificationsCount}
+                                    </Badge>
+                                )}
                             </TabsTrigger>
                         </TabsList>
                     </div>
 
-                    {/* Notifications List */}
-                    <div className="max-h-80 overflow-y-auto">
-                        {filtered.length === 0 ? (
-                            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-                                No hay notificaciones {tab === "unread" && "sin leer"}.
+                    {/* Lista de Notificaciones */}
+                    <div className="max-h-[400px] overflow-y-auto py-2">
+                        {loading ? (
+                            <div className="flex justify-center py-8 text-muted-foreground">
+                                <Loader2 className="h-6 w-6 animate-spin" />
+                            </div>
+                        ) : filtered?.length === 0 ? (
+                            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                                <Bell className="mx-auto h-8 w-8 opacity-20 mb-2" />
+                                No hay {tab === "all" ? "notificaciones" : "solicitudes"} recientes.
                             </div>
                         ) : (
                             filtered.map((n) => {
-                                const Icon = n.type === "friend_request" ? UserPlus : FileText; // Puedes mapear más tipos a íconos aquí
+                                // Mapeo de íconos según tipo
+                                const Icon = n.type === "friend_request" ? UserPlus : n.type === "friend" ? Users : FileText;
+                                const iconColor = n.type === "friend_request" ? "text-blue-500" : "text-green-500";
+                                
                                 return (
                                     <button
-                                    key={n.id}
-                                    onClick={() =>  navigate(n.link)}
-                                    className="flex w-full items-start gap-3 border-b px-3 py-3 text-left hover:bg-accent">
-                                        <Avatar className="h-9 w-9">
-                                            <AvatarImage src={n.avatar_url} alt="Avatar" />
-                                            <AvatarFallback>{getInitials(n.user)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="mt-1 text-muted-foreground">
-                                            <Icon size={18} />
+                                        key={n.id}
+                                        onClick={() => {
+                                            // Lógica opcional para cerrar el popover aquí si usas un estado controlado
+                                            navigate(n.link);
+                                        }}
+                                        className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors border-b last:border-0"
+                                    >
+                                        <div className="relative">
+                                            <Avatar className="h-10 w-10 border">
+                                                <AvatarImage src={n.avatar_url} alt="Avatar" />
+                                                <AvatarFallback>{getInitials(n.user)}</AvatarFallback>
+                                            </Avatar>
+                                            {/* Icono pequeño superpuesto al avatar */}
+                                            <div className={`absolute -bottom-1 -right-1 rounded-full bg-background p-0.5 shadow-sm border ${iconColor}`}>
+                                                <Icon size={12} strokeWidth={3} />
+                                            </div>
                                         </div>
+
                                         <div className="flex-1 space-y-1">
-                                            <p
-                                                className={`text-sm ${
-                                                    n.unread ? "font-semibold text-foreground" : "text-foreground/80"
-                                                }`}>
-                                                {n.user} {n.action}{" "}
-                                                <span className="font-medium">{n.target}</span>
+                                            <p className="text-sm leading-snug">
+                                                <span className="font-semibold text-foreground">{n.user}</span>{" "}
+                                                <span className="text-muted-foreground">{n.action}</span>
                                             </p>
-                                            <p className="text-xs text-muted-foreground">{getTimeAgo(n.timestamp)}</p>
+                                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                                {n.timestamp ? getTimeAgo(n.timestamp) : "Reciente"}
+                                            </p>
                                         </div>
-                                    {n.unread && (
-                                        <span className="mt-1 inline-block size-2 rounded-full bg-primary" />
-                                    )}
+                                        
+                                        {/* Indicador de no leído (si tu backend lo soporta, sino quitar) */}
+                                        {n.unread && (
+                                            <span className="h-2 w-2 rounded-full bg-blue-600 mt-2" />
+                                        )}
                                     </button>
                                 );
                             })
@@ -103,10 +140,12 @@ export function NotificationsNav() {
                 </Tabs>
 
                 {/* Footer */}
-                <div className="px-3 py-2 text-center">
-                    <Link variant="ghost" size="sm" className="w-full" to="/notifications">
-                        Ver todas las notificaciones
-                    </Link>
+                <div className="border-t p-2 bg-muted/30">
+                    <Button variant="ghost" className="w-full h-8 text-xs text-muted-foreground" asChild>
+                        <Link to="/notifications">
+                            Ver historial completo
+                        </Link>
+                    </Button>
                 </div>
             </PopoverContent>
         </Popover>

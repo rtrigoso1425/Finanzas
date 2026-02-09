@@ -61,7 +61,7 @@ const UserCard = ({ user }) => {
               </div>
             </div>
             <button
-              onClick={() => navigate(`/profile/${user?.id}`)}
+              onClick={() => navigate(`/profile/${user?.username}`)}
               className="bg-gray-900 dark:bg-zinc-800 text-white dark:text-zinc-100 rounded-lg px-4 py-2 text-sm font-medium
                          transition-all duration-500 ease-out transform hover:scale-105 
                          hover:bg-gray-800 dark:hover:bg-zinc-700

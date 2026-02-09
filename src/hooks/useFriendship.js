@@ -1,50 +1,37 @@
 import { useState, useEffect } from 'react';
 import { friendshipService } from '../features/friendship/friendshipService';
+import { useDispatch } from 'react-redux';
+import { setFriendshipStatus } from '../features/user/userSlice'; 
 
-export const useFriendship = (currentUser, targetUserId) => {
-    const [status, setStatus] = useState('none'); // 'none', 'pending_sent', 'pending_received', 'accepted'
-    const [friendshipId, setFriendshipId] = useState(null);
+export const useFriendship = (currentUser, targetUserId, initialStatus = 'none', initialFriendshipId = null) => {
+    const dispatch = useDispatch();
+    
+    // Inicializamos el estado DIRECTAMENTE con lo que viene de Redux (si existe)
+    const [status, setStatus] = useState(initialStatus);
+    const [friendshipId, setFriendshipId] = useState(initialFriendshipId);
     const [loading, setLoading] = useState(false);
 
-    // Cargar estado inicial
+    // Sincronizar si los props iniciales cambian (cuando Redux termina de cargar)
     useEffect(() => {
-        if (!currentUser || !targetUserId) return;
+        setStatus(initialStatus);
+        setFriendshipId(initialFriendshipId);
+    }, [initialStatus, initialFriendshipId]);
 
-        const check = async () => {
-        try {
-            const data = await friendshipService.checkStatus(currentUser.id, targetUserId);
+    // Función auxiliar para actualizar Local y Redux al mismo tiempo
+    const updateState = (newStatus, newId = null) => {
+        setStatus(newStatus);
+        if (newId) setFriendshipId(newId);
         
-            if (!data) {
-                setStatus('none');
-            } else {
-                setFriendshipId(data.id);
-                if (data.state === 'accepted') {
-                    setStatus('accepted');
-                } else if (data.state === 'pending') {
-                    // Diferenciamos si yo la envié o si me la enviaron
-                    if (data.friendship_requester === currentUser.id) {
-                        setStatus('pending_sent');
-                    } else {
-                        setStatus('pending_received'); 
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Error checking friendship:", error);
-        }
+        // Actualizamos Redux para que si navegas y vuelves, se mantenga el estado
+        dispatch(setFriendshipStatus({ status: newStatus, id: newId }));
     };
 
-    check();
-}, [currentUser, targetUserId]);
-
-    // Acción: Enviar solicitud
     const sendFriendRequest = async () => {
         if (!currentUser) return;
         setLoading(true);
         try {
             const data = await friendshipService.sendRequest(currentUser.id, targetUserId);
-            setFriendshipId(data.id);
-            setStatus('pending_sent');
+            updateState('pending_sent', data.id);
         } catch (error) {
             alert("Error enviando solicitud");
         } finally {
@@ -52,15 +39,14 @@ export const useFriendship = (currentUser, targetUserId) => {
         }
     };
 
-  // Acción: Aceptar solicitud (desde la tarjeta misma si quisieras)
     const acceptFriendRequest = async () => {
         if (!friendshipId) return;
         setLoading(true);
         try {
             await friendshipService.acceptRequest(friendshipId);
-            setStatus('accepted');
-        } catch (error) {  
-            console.error(error); 
+            updateState('accepted', friendshipId);
+        } catch (error) {
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -71,9 +57,9 @@ export const useFriendship = (currentUser, targetUserId) => {
         setLoading(true);
         try {
             await friendshipService.removeFriendship(friendshipId);
-            setStatus('none');
-            setFriendshipId(null);
-        } catch (error) {  
+            updateState('none', null);
+            setFriendshipId(null); // Limpiamos ID localmente también
+        } catch (error) {
             console.error("Error al rechazar solicitud:", error);
             alert("Error al rechazar la solicitud");
         } finally {

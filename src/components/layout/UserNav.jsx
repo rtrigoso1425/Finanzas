@@ -67,7 +67,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to={`/profile/${user?.id}`}>
+            <Link to={`/profile/${user?.username}`}>
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </Link>
