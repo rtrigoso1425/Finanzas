@@ -15,7 +15,7 @@ import SettingsPage from './pages/SettingsPage';
 import SearchPage from './pages/SearchPage';
 import FriendsPage from './pages/FriendsPage';
 import ObjetivesPage from './pages/ObjetivesPage';
-import IncomesPage from './pages/IncomesPage';
+import BalancePage from './pages/Balance';
 import GrupalObjetivesPage from './pages/GrupalObjetivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import NotificationsPage from './pages/NotificationsPage';
@@ -93,7 +93,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/objetives" element={<ObjetivesPage />} />
-          <Route path="/incomes" element={<IncomesPage />} />
+          <Route path="/balance" element={<BalancePage />} />
           <Route path="/grupal-objetives" element={<GrupalObjetivesPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />

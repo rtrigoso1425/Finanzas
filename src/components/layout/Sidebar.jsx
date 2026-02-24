@@ -133,9 +133,9 @@ export function Sidebar({ isCollapsed, onToggle }) {
         />
         <SidebarLink
           icon={BarChart3}
-          label="Mis ingresos"
-          to="/incomes"
-          active={isActive("/incomes")}
+          label="Mi Balance"
+          to="/balance"
+          active={isActive("/balance")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink

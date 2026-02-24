@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { friendshipService } from '../features/friendship/friendshipService';
 import { useDispatch } from 'react-redux';
 import { setFriendshipStatus } from '../features/user/userSlice'; 
+import { fetchNotifications } from '../features/notifications/notificationsSlice';
 
 export const useFriendship = (currentUser, targetUserId, initialStatus = 'none', initialFriendshipId = null) => {
     const dispatch = useDispatch();
@@ -45,6 +46,7 @@ export const useFriendship = (currentUser, targetUserId, initialStatus = 'none',
         try {
             await friendshipService.acceptRequest(friendshipId);
             updateState('accepted', friendshipId);
+            dispatch(fetchNotifications(currentUser.id)); 
         } catch (error) {
             console.error(error);
         } finally {
@@ -59,6 +61,7 @@ export const useFriendship = (currentUser, targetUserId, initialStatus = 'none',
             await friendshipService.removeFriendship(friendshipId);
             updateState('none', null);
             setFriendshipId(null); // Limpiamos ID localmente también
+            dispatch(fetchNotifications(currentUser.id)); 
         } catch (error) {
             console.error("Error al rechazar solicitud:", error);
             alert("Error al rechazar la solicitud");

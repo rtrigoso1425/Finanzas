@@ -1,11 +1,13 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { friendshipService } from '@/features/friendship/friendshipService';
 import { Loader2, UserPlus, Users, FileText, Check, X } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNotifications } from '@/hooks/useNotifications';
 import { getTimeAgo } from '@/utils/timeAgo';
+import { removeNotification, fetchNotifications } from '@/features/notifications/notificationsSlice';
 
 const groupByRange = (items) => {
     const now = new Date();
@@ -47,79 +49,32 @@ const IconFor = (type) => {
 };
 
 const NotificationsPage = () => {
-    const user = useSelector((s) => s.auth.user);
-    const navigate = useNavigate();
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch(); // <--- Hook de dispatch
+    const { notifications, loading } = useNotifications(); // Usamos refetch si queremos recarga total
+    const { user : currentUser } = useSelector((state) => state.auth); // Para obtener el ID del usuario actual
     const [processing, setProcessing] = useState(null);
-
-    const load = async () => {
-        if (!user) return setLoading(false);
-        setLoading(true);
-        try {
-            const [requestsData, friendsData] = await Promise.all([
-                friendshipService.getIncomingRequests(user.id),
-                friendshipService.getFriends(user.id),
-            ]);
-
-            const temp = [];
-            if (requestsData) {
-                requestsData.forEach((req) => {
-                    temp.push({
-                        id: `req-${req.id}`,
-                        rawId: req.id,
-                        user: req.requester.username,
-                        full_name: req.requester.full_name,
-                        action: 'te envió una solicitud de amistad',
-                        timestamp: req.created_at,
-                        avatar_url: req.requester.avatar_url,
-                        type: 'friend_request',
-                    });
-                });
-            }
-
-            if (friendsData) {
-                friendsData.forEach((friend) => {
-                    const isRequesterMe = friend.friendship_requester === user.id;
-                    const other = isRequesterMe ? friend.requested : friend.requester;
-                    if (!other) return;
-                    temp.push({
-                        id: `friend-${friend.id}`,
-                        rawId: friend.id,
-                        user: other.username,
-                        full_name: other.full_name,
-                        action: isRequesterMe ? 'aceptó tu solicitud' : 'ahora es tu amigo',
-                        timestamp: friend.updated_at || friend.created_at,
-                        avatar_url: other.avatar_url,
-                        type: 'friend',
-                    });
-                });
-            }
-
-            temp.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            setNotifications(temp);
-        } catch (err) {
-            console.error('Error cargando notificaciones:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.id]);
-
+    
+    // Usamos useMemo igual que antes
     const grouped = useMemo(() => groupByRange(notifications), [notifications]);
 
-    const handleAccept = async (rawId) => {
+    const handleAccept = async (notification) => {
+        // Nota: Pasamos el objeto notification completo para tener acceso a los IDs
         try {
-            setProcessing(rawId);
-            await friendshipService.acceptRequest(rawId);
-            // remove request from list and add friend notification
-            setNotifications((prev) => prev.filter((n) => !(n.type === 'friend_request' && n.rawId === rawId)));
-            // refresh to show friend event
-            await load();
+            setProcessing(notification.rawId);
+            
+            // 1. Llamada a la API
+            // OJO: Asegúrate que friendshipService.acceptRequest use el ID correcto (el de la tabla friendship)
+            // En el slice guardé 'friendshipId' para esto, o usa rawId si tu servicio lo maneja.
+            await friendshipService.acceptRequest(notification.friendshipId || notification.id.replace('req-', '')); 
+
+            // 2. Actualizar Redux (Optimista)
+            // Quitamos la solicitud de la lista GLOBAL
+            dispatch(removeNotification(notification.rawId));
+            
+            // Opcional: Recargar todo para que aparezca el mensaje "ahora es tu amigo"
+            dispatch(fetchNotifications(currentUser.id)); 
+            // O simplemente dejar que se vaya la solicitud por ahora.
+            
         } catch (err) {
             console.error(err);
             alert('Error al aceptar la solicitud');
@@ -128,11 +83,15 @@ const NotificationsPage = () => {
         }
     };
 
-    const handleReject = async (rawId) => {
+    const handleReject = async (notification) => {
         try {
-            setProcessing(rawId);
-            await friendshipService.removeFriendship(rawId);
-            setNotifications((prev) => prev.filter((n) => !(n.type === 'friend_request' && n.rawId === rawId)));
+            setProcessing(notification.rawId);
+            // Asegúrate de usar el ID de la relación friendship
+            const idToDelete = notification.friendshipId || notification.id.replace('req-', '');
+            await friendshipService.removeFriendship(idToDelete);
+            
+            // Actualizar Redux
+            dispatch(removeNotification(notification.rawId));
         } catch (err) {
             console.error(err);
             alert('Error al rechazar la solicitud');
@@ -141,6 +100,7 @@ const NotificationsPage = () => {
         }
     };
 
+    // ... (El componente Section se mantiene igual, solo ajusta las llamadas a handleAccept/Reject) ...
     const Section = ({ title, items }) => (
         <section className="mb-6">
             <h3 className="text-lg font-semibold mb-3">{title} ({items.length})</h3>
@@ -149,14 +109,12 @@ const NotificationsPage = () => {
                     const Icon = IconFor(n.type);
                     return (
                         <div key={n.id} className="flex items-center gap-3 p-3 bg-white border rounded">
+                             {/* ... Avatar y textos igual que antes ... */}
                             <div className="relative">
                                 <Avatar className="h-10 w-10 border">
                                     <AvatarImage src={n.avatar_url} alt={n.user} />
                                     <AvatarFallback>{(n.user || '?').slice(0,2).toUpperCase()}</AvatarFallback>
                                 </Avatar>
-                                <div className="absolute -bottom-1 -right-1 rounded-full bg-background p-0.5 shadow-sm border text-xs">
-                                    <Icon size={12} />
-                                </div>
                             </div>
 
                             <div className="flex-1">
@@ -172,10 +130,11 @@ const NotificationsPage = () => {
 
                                 {n.type === 'friend_request' && (
                                     <div className="mt-2 flex gap-2">
-                                        <Button onClick={() => handleAccept(n.rawId)} disabled={processing === n.rawId}>
+                                        {/* Pasamos el objeto 'n' completo */}
+                                        <Button onClick={() => handleAccept(n)} disabled={processing === n.rawId}>
                                             {processing === n.rawId ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Check size={14} /> Aceptar</>}
                                         </Button>
-                                        <Button variant="ghost" onClick={() => handleReject(n.rawId)} disabled={processing === n.rawId}>
+                                        <Button variant="ghost" onClick={() => handleReject(n)} disabled={processing === n.rawId}>
                                             <X size={14} /> Rechazar
                                         </Button>
                                     </div>
@@ -196,11 +155,16 @@ const NotificationsPage = () => {
                 <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin" /></div>
             ) : (
                 <div className="space-y-6">
-                    <Section title="Hoy" items={grouped.today} />
-                    <Section title="Esta semana" items={grouped.this_week} />
-                    <Section title="Este mes" items={grouped.this_month} />
-                    <Section title="Este año" items={grouped.this_year} />
-                    <Section title="Hace mucho tiempo" items={grouped.long_ago} />
+                    {/* Renderizamos solo si hay items en los grupos */}
+                    {grouped.today.length > 0 && <Section title="Hoy" items={grouped.today} />}
+                    {grouped.this_week.length > 0 && <Section title="Esta semana" items={grouped.this_week} />}
+                    {grouped.this_month.length > 0 && <Section title="Este mes" items={grouped.this_month} />}
+                    {grouped.this_year.length > 0 && <Section title="Este año" items={grouped.this_year} />}
+                    {grouped.long_ago.length > 0 && <Section title="Hace mucho tiempo" items={grouped.long_ago} />}
+                    
+                    {notifications.length === 0 && (
+                        <div className="text-center text-muted-foreground py-10">No tienes notificaciones.</div>
+                    )}
                 </div>
             )}
         </div>
