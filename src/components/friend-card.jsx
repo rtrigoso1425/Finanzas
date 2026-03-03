@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react"
 import { Instagram, Twitter } from "lucide-react"
+import { getTimeAgo } from '@/utils/timeAgo';
 import { Link } from "react-router-dom"
 
 export function FriendCard({
-  friend
+  friend,
+  time
 }) {
-  const [isFollowing, setIsFollowing] = useState(false)
   const [expProgress, setExpProgress] = useState(0)
   const [animatedLikes, setAnimatedLikes] = useState(0)
   const [animatedPosts, setAnimatedPosts] = useState(0)
   const [animatedViews, setAnimatedViews] = useState(0)
   const name = friend.username
-  const title = "Product Designer who focuses on simplicity & usability."
+  const title = `Amigos ${getTimeAgo(time)}`
   const avatarUrl = friend.avatar_url
   const backgroundUrl = "https://i.ibb.co/nHk8jc8/cloud-image.jpg"
   const likes = 72900
@@ -26,9 +27,9 @@ export function FriendCard({
     const timer = setTimeout(() => {
       const interval = setInterval(() => {
         setExpProgress((prev) => {
-          if (prev >= 65) {
+          if (prev >= 95) {
             clearInterval(interval)
-            return 65
+            return 95
           }
           return prev + 1
         })
@@ -90,14 +91,9 @@ export function FriendCard({
 
           {/* Follow button */}
           <Link
-            to={`/profile/${friend.id}`}
-            className={`absolute top-4 right-4 rounded-full px-6 py-2 font-medium transition-all duration-300 ${
-              isFollowing
-                ? "bg-card text-card-foreground border-2 border-border hover:bg-secondary"
-                : "bg-card text-card-foreground hover:bg-secondary"
-            }`}>
-            {isFollowing ? "Following" : "Follow"}
-            <span className="ml-2 text-lg">{isFollowing ? "✓" : "+"}</span>
+            to={`/profile/${friend.username}`}
+            className={`absolute top-4 right-4 rounded-full px-6 py-2 font-medium transition-all duration-300 bg-card text-card-foreground border-2 border-border hover:bg-secondary`}>
+            Ver Perfil
           </Link>
         </div>
 
@@ -130,8 +126,7 @@ export function FriendCard({
           <h2
             className="text-2xl font-semibold text-card-foreground mb-2 tracking-tight">{name}</h2>
           <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-light">{title}</p>
-
-          {/* Stats */}
+          {/* Stats 
           <div
             className="grid grid-cols-3 gap-4 mb-6 py-4 border-t border-b border-border">
             <div className="text-center">
@@ -147,8 +142,9 @@ export function FriendCard({
               <div className="text-xs text-muted-foreground font-light">Views</div>
             </div>
           </div>
+          */}
 
-          {/* Social icons */}
+          {/* Social icons
           <div className="flex justify-center gap-8">
             <a
               href={instagramUrl}
@@ -186,6 +182,7 @@ export function FriendCard({
               </svg>
             </a>
           </div>
+          */}
         </div>
       </div>
     </div>

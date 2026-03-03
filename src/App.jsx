@@ -14,11 +14,12 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import SearchPage from './pages/SearchPage';
 import FriendsPage from './pages/FriendsPage';
-import ObjetivesPage from './pages/ObjetivesPage';
+import ObjectivesPage from './pages/ObjectivesPage';
 import BalancePage from './pages/Balance';
-import GrupalObjetivesPage from './pages/GrupalObjetivesPage';
+import GrupalObjectivesPage from './pages/GrupalObjectivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import NotificationsPage from './pages/NotificationsPage';
+import CreateGroupObjectivePage from './pages/CreateGroupObjectivePage';
 
 function App() {
   const dispatch = useDispatch();
@@ -91,10 +92,11 @@ function App() {
           <Route path="/profile/:username" element={<ProfilePage />} />
           <Route path="/friends" element={<FriendsPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/objectives" element={<ObjectivesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/objetives" element={<ObjetivesPage />} />
           <Route path="/balance" element={<BalancePage />} />
-          <Route path="/grupal-objetives" element={<GrupalObjetivesPage />} />
+          <Route path="/grupal-objectives" element={<GrupalObjectivesPage />} />
+          <Route path="/grupal-objectives/create" element={<CreateGroupObjectivePage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
         </Route>

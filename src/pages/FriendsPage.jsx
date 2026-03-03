@@ -50,14 +50,14 @@ const FriendsPage = () => {
         <p className="text-sm text-muted-foreground">No se encontraron amigos.</p>
       ) : (
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredFriends.map((friend) => {
+          {filteredFriends.map((friendship) => {
             const currentUserId = String(currentUser?.id || "");
-            const requesterId = String(friend?.requester?.id || "");
+            const requesterId = String(friendship?.requester?.id || "");
             const isRequester = requesterId === currentUserId;
-            const personToShow = isRequester ? friend?.requested : friend?.requester;
+            const personToShow = isRequester ? friendship?.requested : friendship?.requester;
             return (
-              <div key={friend.id} className="w-full">
-                <FriendCard friend={personToShow} />
+              <div key={friendship.id} className="w-full">
+                <FriendCard friend={personToShow} time={friendship.updated_at} />
               </div>
             );
           })}

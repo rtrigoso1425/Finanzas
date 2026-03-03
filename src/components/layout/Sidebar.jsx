@@ -148,15 +148,15 @@ export function Sidebar({ isCollapsed, onToggle }) {
         <SidebarLink
           icon={BookOpen}
           label="Objetivos"
-          to="/objetives"
-          active={isActive("/objetives")}
+          to="/objectives"
+          active={isActive("/objectives")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
           icon={Users}
           label="Objetivos grupales"
-          to="/grupal-objetives"
-          active={isActive("/grupal-objetives")}
+          to="/grupal-objectives"
+          active={isActive("/grupal-objectives")}
           isCollapsed={isCollapsed}
         />
         <SidebarLink
