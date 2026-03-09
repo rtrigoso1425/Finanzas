@@ -15,7 +15,6 @@ const FriendsPage = () => {
           const response = await friendshipService.getFriends(currentUser.id);
         
           // Asegúrate de que response sea el array, a veces viene en response.data
-          console.log("Datos recibidos:", response); 
           setFriends(response);
         }
       } catch (error) {

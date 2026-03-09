@@ -11,12 +11,11 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const GrupalObjectivesPage = () => {
   const { myObjectives, invitations, loading, error, acceptInvitation, rejectInvitation } = useGroupObjectives();
   const [tab, setTab] = useState('mine');
-  console.log('My Objectives:', myObjectives);
-  console.log('Invitations:', invitations);
   if (loading) {
     return (
       <div className="flex justify-center py-12">

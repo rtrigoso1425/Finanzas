@@ -6,6 +6,12 @@ export const groupObjectivesService = {
             .from("group_members")
             .select(`
                 *,
+                profiles!member_id(
+                    id,
+                    full_name,
+                    username,
+                    avatar_url
+                ),
                 group_objectives!group_goal_id(
                     id, 
                     owner_id, 
@@ -20,7 +26,13 @@ export const groupObjectivesService = {
                         id,
                         member_id,
                         state,
-                        contribution
+                        contribution,
+                        profiles!member_id(
+                            id,
+                            full_name,
+                            username,
+                            avatar_url
+                        )
                     )
                 )
             `)

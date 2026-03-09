@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
-import { Instagram, Twitter } from "lucide-react"
+import { Instagram, Twitter, Star } from "lucide-react"
 import { getTimeAgo } from '@/utils/timeAgo';
 import { Link } from "react-router-dom"
+import { reviewsService } from "@/features/reviews/reviewsService";
 
 export function FriendCard({
   friend,
@@ -11,6 +12,7 @@ export function FriendCard({
   const [animatedLikes, setAnimatedLikes] = useState(0)
   const [animatedPosts, setAnimatedPosts] = useState(0)
   const [animatedViews, setAnimatedViews] = useState(0)
+  const [raitingAverage, setRaitingAverage] = useState(0)
   const name = friend.username
   const title = `Amigos ${getTimeAgo(time)}`
   const avatarUrl = friend.avatar_url
@@ -22,14 +24,27 @@ export function FriendCard({
   const twitterUrl = "https://twitter.com/bhomikchauhan"
   const threadsUrl = "https://threads.net/@bhomikchauhan"
 
+  useEffect(() => {
+    const fetchRating = async () => {
+      try {
+        const avg = await reviewsService.getAverageRatingForUser(friend.id);
+        setRaitingAverage(Number(avg));
+        console.log("Raiting promedio para", friend.username, ":", avg);
+      } catch (error) {
+        console.error("Error obteniendo rating:", error);
+      }
+    };
+    fetchRating();
+  }, [friend.id]);
   // Animate experience bar
   useEffect(() => {
     const timer = setTimeout(() => {
       const interval = setInterval(() => {
         setExpProgress((prev) => {
-          if (prev >= 95) {
+          // Usamos el estado raitingAverage
+          if (prev >= Math.round(raitingAverage * 20)) {
             clearInterval(interval)
-            return 95
+            return Math.round(raitingAverage * 20)
           }
           return prev + 1
         })
@@ -37,7 +52,7 @@ export function FriendCard({
       return () => clearInterval(interval);
     }, 300)
     return () => clearTimeout(timer);
-  }, [])
+  }, [raitingAverage])
 
   // Animate counters
   useEffect(() => {
@@ -113,11 +128,14 @@ export function FriendCard({
           {/* Experience bar */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm text-muted-foreground font-light">exp.</span>
               <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-purple-500 via-pink-500 via-orange-500 via-yellow-500 via-green-500 to-blue-500 transition-all duration-300 ease-out"
+                  className="h-full bg-yellow-400 transition-all duration-300 ease-out"
                   style={{ width: `${expProgress}%` }} />
+              </div>
+              <div className="flex items-center">
+                <span className="text-sm text-muted-foreground font-light">{raitingAverage.toFixed(1)}/5</span>
+                <Star className="w-4 h-4 text-yellow-500" />
               </div>
             </div>
           </div>

@@ -22,7 +22,6 @@ export const ImageUploader = () => {
         // detecten el cambio y pinten la nueva foto al instante.
         dispatch(updateAvatar(newUrl));
         
-        console.log("Imagen actualizada en DB y Redux:", newUrl);
         setStatus('success');
         setFile(null); // Limpiamos el input
         
