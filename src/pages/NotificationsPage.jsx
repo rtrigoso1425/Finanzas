@@ -6,6 +6,7 @@ import { Loader2, UserPlus, Users, FileText, Check, X } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useGroupObjectives } from '@/hooks/useGroupObjectives';
 import { getTimeAgo } from '@/utils/timeAgo';
 import { removeNotification, fetchNotifications } from '@/features/notifications/notificationsSlice';
 
@@ -44,36 +45,57 @@ const groupByRange = (items) => {
 
 const IconFor = (type) => {
     if (type === 'friend_request') return UserPlus;
-    if (type === 'friend') return Users;
+    if (type === 'group_invitation') return Users;
     return FileText;
 };
 
 const NotificationsPage = () => {
     const dispatch = useDispatch(); // <--- Hook de dispatch
     const { notifications, loading } = useNotifications(); // Usamos refetch si queremos recarga total
+    const { invitations, acceptInvitation, rejectInvitation } = useGroupObjectives();
     const { user : currentUser } = useSelector((state) => state.auth); // Para obtener el ID del usuario actual
     const [processing, setProcessing] = useState(null);
     
+    // Transform group invitations to notification format
+    const transformedInvitations = invitations.map(inv => ({
+        id: `group-${inv.id}`,
+        rawId: inv.id,
+        type: 'group_invitation',
+        user: inv.group_objectives.profiles?.username || 'Usuario',
+        full_name: inv.group_objectives.profiles?.full_name || 'Usuario',
+        avatar_url: inv.group_objectives.profiles?.avatar_url,
+        action: `te invitó a unirte a "${inv.group_objectives.objective_name}"`,
+        timestamp: inv.created_at,
+        link: '/grupal-objectives',
+    }));
+
+    const allNotifications = [...notifications, ...transformedInvitations];
+    
     // Usamos useMemo igual que antes
-    const grouped = useMemo(() => groupByRange(notifications), [notifications]);
+    const grouped = useMemo(() => groupByRange(allNotifications), [allNotifications]);
 
     const handleAccept = async (notification) => {
         // Nota: Pasamos el objeto notification completo para tener acceso a los IDs
         try {
             setProcessing(notification.rawId);
             
-            // 1. Llamada a la API
-            // OJO: Asegúrate que friendshipService.acceptRequest use el ID correcto (el de la tabla friendship)
-            // En el slice guardé 'friendshipId' para esto, o usa rawId si tu servicio lo maneja.
-            await friendshipService.acceptRequest(notification.friendshipId || notification.id.replace('req-', '')); 
-
+            if (notification.type === 'friend_request') {
+                // 1. Llamada a la API
+                // OJO: Asegúrate que friendshipService.acceptRequest use el ID correcto (el de la tabla friendship)
+                // En el slice guardé 'friendshipId' para esto, o usa rawId si tu servicio lo maneja.
+                await friendshipService.acceptRequest(notification.friendshipId || notification.id.replace('req-', ''));
+            } else if (notification.type === 'group_invitation') {
+                await acceptInvitation(notification.rawId);
+            }
+            
             // 2. Actualizar Redux (Optimista)
             // Quitamos la solicitud de la lista GLOBAL
             dispatch(removeNotification(notification.rawId));
             
             // Opcional: Recargar todo para que aparezca el mensaje "ahora es tu amigo"
-            dispatch(fetchNotifications(currentUser.id)); 
-            // O simplemente dejar que se vaya la solicitud por ahora.
+            if (notification.type === 'friend_request') {
+                dispatch(fetchNotifications(currentUser.id));
+            }
             
         } catch (err) {
             console.error(err);
@@ -86,9 +108,12 @@ const NotificationsPage = () => {
     const handleReject = async (notification) => {
         try {
             setProcessing(notification.rawId);
-            // Asegúrate de usar el ID de la relación friendship
-            const idToDelete = notification.friendshipId || notification.id.replace('req-', '');
-            await friendshipService.removeFriendship(idToDelete);
+            if (notification.type === 'friend_request') {
+                const idToDelete = notification.friendshipId || notification.id.replace('req-', '');
+                await friendshipService.removeFriendship(idToDelete);
+            } else if (notification.type === 'group_invitation') {
+                await rejectInvitation(notification.rawId);
+            }
             
             // Actualizar Redux
             dispatch(removeNotification(notification.rawId));
@@ -128,7 +153,7 @@ const NotificationsPage = () => {
                                     <div className="text-xs text-muted-foreground">{n.timestamp ? getTimeAgo(n.timestamp) : 'Reciente'}</div>
                                 </div>
 
-                                {n.type === 'friend_request' && (
+                                {n.type === 'friend_request' || n.type === 'group_invitation' ? (
                                     <div className="mt-2 flex gap-2">
                                         {/* Pasamos el objeto 'n' completo */}
                                         <Button onClick={() => handleAccept(n)} disabled={processing === n.rawId}>
@@ -138,7 +163,7 @@ const NotificationsPage = () => {
                                             <X size={14} /> Rechazar
                                         </Button>
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                         </div>
                     );
@@ -162,7 +187,7 @@ const NotificationsPage = () => {
                     {grouped.this_year.length > 0 && <Section title="Este año" items={grouped.this_year} />}
                     {grouped.long_ago.length > 0 && <Section title="Hace mucho tiempo" items={grouped.long_ago} />}
                     
-                    {notifications.length === 0 && (
+                    {allNotifications.length === 0 && (
                         <div className="text-center text-muted-foreground py-10">No tienes notificaciones.</div>
                     )}
                 </div>

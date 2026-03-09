@@ -1,11 +1,11 @@
 import { supabase } from "../supabase/supabaseClient";  
 
 export const reviewsService = {
-    async createReview(myid ,userId, ObjetiveId, rating, comment) {
+    async createReview(myid ,userId, ObjectiveId, rating, comment) {
         const { data, error } = await supabase
         .from('reviews')
         .insert([
-            { reviewer: myid, reviewed: userId, grupal_objetive: ObjetiveId, rating: rating, comment: comment }
+            { reviewer: myid, reviewed: userId, grupal_objective: ObjectiveId, rating: rating, comment: comment }
         ]);
 
         if (error) throw error;

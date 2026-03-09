@@ -12,10 +12,19 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import GroupObjectiveCard from '@/components/GroupObjectiveCard';
 
 const GrupalObjectivesPage = () => {
   const { myObjectives, invitations, loading, error, acceptInvitation, rejectInvitation } = useGroupObjectives();
   const [tab, setTab] = useState('mine');
+
+  // only count objectives whose end date is in the future
+  const now = new Date();
+  const activeObjectives = myObjectives.filter(
+    (obj) => new Date(obj.group_objectives.end_date) > now
+  );
+  const canCreate = activeObjectives.length < 5;
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -37,8 +46,12 @@ const GrupalObjectivesPage = () => {
       {/* header con título y botón de creación */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Objetivos grupales</h1>
-        <Button asChild>
-          <Link to="/grupal-objetives/create">Crear objetivo grupal</Link>
+        <Button disabled={!canCreate} asChild={canCreate}>
+          {canCreate ? (
+            <Link to="/grupal-objectives/create">Crear objetivo grupal</Link>
+          ) : (
+            'Limite alcanzado'
+          )}
         </Button>
       </div>
 
@@ -50,27 +63,18 @@ const GrupalObjectivesPage = () => {
         </TabsList>
 
         <TabsContent value="mine">
-          {myObjectives.length === 0 ? (
+          {activeObjectives.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               Aún no tienes objetivos grupales. Usa el botón de arriba para crear
               uno.
             </div>
           ) : (
-            <div className="grid gap-4">
-              {myObjectives.map((obj) => (
-                <Card key={obj.group_objectives.id}>
-                  <CardHeader>
-                    <CardTitle>{obj.group_objectives?.objetive_name || 'Objetivo sin título'}</CardTitle>
-                    {obj.group_objectives?.description && (
-                      <CardDescription>{obj.group_objectives.description}</CardDescription>
-                    )}
-                  </CardHeader>
-                  {obj.group_objectives?.description && (
-                    <CardContent>
-                      <p>{obj.group_objectives.description}</p>
-                    </CardContent>
-                  )}
-                </Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {activeObjectives.map((obj) => (
+                <GroupObjectiveCard
+                  key={obj.group_objectives.id}
+                  membership={obj}
+                />
               ))}
             </div>
           )}
@@ -87,7 +91,7 @@ const GrupalObjectivesPage = () => {
                 <Card key={inv.id}>
                   <CardHeader>
                     <CardTitle>
-                      {inv.group_objectives?.objetive_name || 'Objetivo grupal'}
+                      {inv.group_objectives?.objective_name || 'Objetivo grupal'}
                     </CardTitle>
                     {inv.state && (
                       <CardDescription className="uppercase text-xs">

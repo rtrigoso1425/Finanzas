@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom"; // useNavigate estaba duplicado
 import { useNotifications } from "@/hooks/useNotifications";
+import { useGroupObjectives } from "@/hooks/useGroupObjectives";
 import { getTimeAgo } from "@/utils/timeAgo"; // Asegúrate de tener esta utilidad o usa una librería
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -16,8 +17,13 @@ import {
     FileText,
     UserPlus,
     Users,
-    Loader2 // Importamos icono de carga
+    Loader2, // Importamos icono de carga
+    Check,
+    X,
 } from "lucide-react";
+import { useSelector, useDispatch } from 'react-redux';
+import { friendshipService } from '@/features/friendship/friendshipService';
+import { removeNotification, fetchNotifications } from '@/features/notifications/notificationsSlice';
 
 // Función auxiliar para iniciales
 const getInitials = (name) => {
@@ -30,15 +36,73 @@ const getInitials = (name) => {
 export function NotificationsNav() {
     // 1. CORRECCIÓN: Desestructuramos para obtener el array y el loading
     const { notifications, loading } = useNotifications();
+    const { invitations, acceptInvitation, rejectInvitation } = useGroupObjectives();
     const [tab, setTab] = useState("all");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { user: currentUser } = useSelector((state) => state.auth);
+    const [processing, setProcessing] = useState(null);
+
+    // Transform group invitations
+    const transformedInvitations = invitations.map(inv => ({
+        id: `group-${inv.id}`,
+        rawId: inv.id,
+        type: 'group_invitation',
+        user: inv.group_objectives.profiles?.username || 'Usuario',
+        full_name: inv.group_objectives.profiles?.full_name || 'Usuario',
+        avatar_url: inv.group_objectives.profiles?.avatar_url,
+        action: `te invitó a unirte a "${inv.group_objectives.objective_name}"`,
+        timestamp: inv.created_at,
+        link: '/grupal-objectives',
+    }));
+
+    const allNotifications = [...notifications, ...transformedInvitations];
 
     // Filtros seguros (usando optional chaining por seguridad)
-    const notificationsCount = notifications?.filter((n) => n.type === "friend_request").length || 0;
+    const notificationsCount = allNotifications?.filter((n) => n.type === "friend_request").length || 0;
+    const groupInvitationsCount = allNotifications?.filter((n) => n.type === "group_invitation").length || 0;
     
     const filtered = tab === "friend_request" 
-        ? notifications?.filter((n) => n.type === "friend_request") 
-        : notifications;
+        ? allNotifications?.filter((n) => n.type === "friend_request") 
+        : tab === "group_invitations"
+        ? allNotifications?.filter((n) => n.type === "group_invitation")
+        : allNotifications;
+
+    const handleAccept = async (n) => {
+        try {
+            setProcessing(n.rawId);
+            if (n.type === 'friend_request') {
+                await friendshipService.acceptRequest(n.friendshipId || n.id.replace('req-', ''));
+                dispatch(fetchNotifications(currentUser.id));
+            } else if (n.type === 'group_invitation') {
+                await acceptInvitation(n.rawId);
+            }
+            dispatch(removeNotification(n.rawId));
+        } catch (err) {
+            console.error(err);
+            alert('Error al aceptar');
+        } finally {
+            setProcessing(null);
+        }
+    };
+
+    const handleReject = async (n) => {
+        try {
+            setProcessing(n.rawId);
+            if (n.type === 'friend_request') {
+                const idToDelete = n.friendshipId || n.id.replace('req-', '');
+                await friendshipService.removeFriendship(idToDelete);
+            } else if (n.type === 'group_invitation') {
+                await rejectInvitation(n.rawId);
+            }
+            dispatch(removeNotification(n.rawId));
+        } catch (err) {
+            console.error(err);
+            alert('Error al rechazar');
+        } finally {
+            setProcessing(null);
+        }
+    };
 
     return (
         <Popover>
@@ -68,13 +132,21 @@ export function NotificationsNav() {
                     
                     {/* Tabs */}
                     <div className="px-2 pt-2">
-                        <TabsList className="w-full grid grid-cols-2">
+                        <TabsList className="w-full grid grid-cols-3">
                             <TabsTrigger value="all">Todas</TabsTrigger>
                             <TabsTrigger value="friend_request" className="relative">
                                 Solicitudes
                                 {notificationsCount > 0 && (
                                     <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
                                         {notificationsCount}
+                                    </Badge>
+                                )}
+                            </TabsTrigger>
+                            <TabsTrigger value="group_invitations" className="relative">
+                                Objetivos Grupales
+                                {groupInvitationsCount > 0 && (
+                                    <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
+                                        {groupInvitationsCount}
                                     </Badge>
                                 )}
                             </TabsTrigger>
@@ -90,13 +162,13 @@ export function NotificationsNav() {
                         ) : filtered?.length === 0 ? (
                             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
                                 <Bell className="mx-auto h-8 w-8 opacity-20 mb-2" />
-                                No hay {tab === "all" ? "notificaciones" : "solicitudes"} recientes.
+                                No hay {tab === "all" ? "notificaciones" : tab === "friend_request" ? "solicitudes de amistad" : "invitaciones a objetivos grupales"} recientes.
                             </div>
                         ) : (
                             filtered.map((n) => {
                                 // Mapeo de íconos según tipo
-                                const Icon = n.type === "friend_request" ? UserPlus : n.type === "friend" ? Users : FileText;
-                                const iconColor = n.type === "friend_request" ? "text-blue-500" : "text-green-500";
+                                const Icon = n.type === "friend_request" ? UserPlus : n.type === "group_invitation" ? FileText : Users;
+                                const iconColor = n.type === "friend_request" ? "text-blue-500" : n.type === "group_invitation" ? "text-gray-500" : "text-green-500";
                                 
                                 return (
                                     <button
@@ -120,12 +192,22 @@ export function NotificationsNav() {
 
                                         <div className="flex-1 space-y-1">
                                             <p className="text-sm leading-snug">
-                                                <span className="font-semibold text-foreground">{n.user}</span>{" "}
+                                                <span className="font-semibold text-foreground">{n.full_name || n.user}</span>{" "}
                                                 <span className="text-muted-foreground">{n.action}</span>
                                             </p>
                                             <p className="text-xs text-muted-foreground flex items-center gap-1">
                                                 {n.timestamp ? getTimeAgo(n.timestamp) : "Reciente"}
                                             </p>
+                                            {(n.type === 'friend_request' || n.type === 'group_invitation') && (
+                                                <div className="mt-2 flex gap-2">
+                                                    <Button onClick={() => handleAccept(n)} disabled={processing === n.rawId} size="sm">
+                                                        {processing === n.rawId ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check size={12} />} Aceptar
+                                                    </Button>
+                                                    <Button variant="ghost" onClick={() => handleReject(n)} disabled={processing === n.rawId} size="sm">
+                                                        <X size={12} /> Rechazar
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                         
                                         {/* Indicador de no leído (si tu backend lo soporta, sino quitar) */}

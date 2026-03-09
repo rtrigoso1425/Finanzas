@@ -15,7 +15,7 @@ export const groupObjectivesService = {
                 group_objectives!group_goal_id(
                     id, 
                     owner_id, 
-                    objetive_name, 
+                    objective_name, 
                     created_at, 
                     end_date, 
                     total_amount, 
@@ -46,7 +46,7 @@ export const groupObjectivesService = {
     async getInvitations(userId) {
         const { data, error } = await supabase
             .from("group_members")
-            .select(`*, group_objectives!group_goal_id(id, owner_id, objetive_name, created_at, end_date, total_amount, remaining_amount, public, description)`)
+            .select(`*, group_objectives!group_goal_id(id, owner_id, objective_name, created_at, end_date, total_amount, remaining_amount, public, description, profiles!owner_id(id, full_name, username, avatar_url))`)
             .eq("member_id", userId)
             .eq("state", "pending");
         if (error) throw error;
