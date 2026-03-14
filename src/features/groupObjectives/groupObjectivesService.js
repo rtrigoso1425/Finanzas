@@ -88,6 +88,30 @@ export const groupObjectivesService = {
             .select("*")
             .single();
         if (error) throw error;
+        const { error: memberErr } = await supabase
+            .from('group_members')
+            .insert({
+                member_id: ownerId,
+                group_goal_id: data.id,
+                state: 'active',
+                created_at: new Date(),
+            });
+        
+        if (memberErr) throw memberErr;
         return data;
+    },
+    
+    async inviteFriendsToObjective(groupGoalId, friendIds) {
+        const { error } = await supabase
+            .from('group_members')
+            .insert(
+                friendIds.map(friendId => ({
+                    member_id: friendId,
+                    group_goal_id: groupGoalId,
+                    state: 'pending',
+                    created_at: new Date(),
+                }))
+            );
+        if (error) throw error;
     }
 }

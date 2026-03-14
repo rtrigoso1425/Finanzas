@@ -3,51 +3,90 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/features/supabase/supabaseClient';
+import { TagsSelector } from "@/components/ui/tags-selector";
 import { useGroupObjectives } from '@/hooks/useGroupObjectives';
-import { Target, FileText } from 'lucide-react';
+import { Target, FileText, Calendar, DollarSign, Users } from 'lucide-react';
+import { friendshipService } from '@/features/friendship/friendshipService';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import DatePicker from './ui/date-picker'; // Asegúrate de que la ruta apunte a tu componente
 
 const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
+  const { user: currentUser } = useSelector((state) => state.auth);
   const [objectiveName, setObjectiveName] = useState('');
+  const [targetAmount, setTargetAmount] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [targetDate, setTargetDate] = useState("");
+  const [friends, setFriends] = useState([]);
+  const [selectedFriends, setSelectedFriends] = useState([]);
+
   
   const { createGroupObjective } = useGroupObjectives();
 
+  const handleFriendSelection = (selected) => {
+    setSelectedFriends(selected);
+  }
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        if (currentUser?.id) {
+          // 4. Usar await para esperar la respuesta real
+          const response = await friendshipService.getFriends(currentUser.id);
+        
+          // Asegúrate de que response sea el array, a veces viene en response.data
+          setFriends(response);
+        }
+      } catch (error) {
+        console.error("Error cargando amigos:", error);
+      }
+    };
+    fetchFriends();
+  }, [currentUser?.id]);
+
+  const isDateDisabled = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + 7);
+    
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+
+    return compareDate < maxDate;
+  };
+  
+  const friendsTags = friends.map((friend) => ({
+    id: friend.friend_requested === currentUser.id ? friend.requester.id : friend.requested.id,
+    label: friend.friend_requested === currentUser.id ? friend.requester.username : friend.requested.username,
+  }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!targetDate) {
+      alert("Debes seleccionar una fecha límite.");
+      return;
+    }
+    
     setLoading(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error('No autenticado');
-
-      const newObjective = await createGroupObjective(0, objectiveName, new Date(2026, 11, 20), description);
-
-      // agregamos al propio creador como miembro aceptado
-      const { error: memberErr } = await supabase
-        .from('group_members')
-        .insert({
-          member_id: user.id,
-          group_goal_id: newObjective.id,
-          state: 'active',
-          created_at: new Date(),
-        });
-        
-      if (memberErr) throw memberErr;
+      await createGroupObjective(targetAmount, objectiveName, targetDate, description, selectedFriends);
+      console.log("amigos seleccionados para invitar:", selectedFriends);
 
       // Limpiamos el formulario y cerramos el modal
       setObjectiveName('');
       setDescription('');
+      setTargetDate('');
       onOpenChange(false);
-      window.location.reload();
+      //window.location.reload();
     } catch (err) {
       console.error('Error creando objetivo grupal:', err);
       alert('No se pudo crear el objetivo');
@@ -58,7 +97,6 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      {/* Aplicamos las clases de sombra y bordes redondeados al estilo del AdminDashboard */}
       <DialogContent className="sm:max-w-md shadow-xl rounded-3xl border-0 bg-card p-6">
         <DialogHeader className="space-y-2 pb-2">
           <DialogTitle className="text-2xl font-semibold text-center text-foreground">
@@ -71,7 +109,6 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           
-          {/* Campo: Nombre del Objetivo */}
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">
               Nombre del Objetivo
@@ -88,7 +125,23 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
             </div>
           </div>
 
-          {/* Campo: Descripción */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-foreground">
+              Cantidad a Reunir
+            </Label>
+            <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
+              <DollarSign className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <Input
+                type="number"
+                value={targetAmount}
+                onChange={(e) => setTargetAmount(e.target.value)}
+                placeholder="Ej. $1000"
+                required
+                className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground bg-transparent"
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">
               Descripción
@@ -103,9 +156,36 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
                 rows={3}
               />
             </div>
+            
+            <Label className="text-sm font-medium text-foreground">
+              Fecha límite
+            </Label>
+            {/* ELIMINADO: relative z-50 */}
+            <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
+              <Calendar className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <DatePicker
+                date={targetDate ? new Date(targetDate) : null}
+                onDateChange={(date) => setTargetDate(date ? date.toISOString() : "")}
+                disabledDate={isDateDisabled}
+                className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground bg-card"
+              />
+            </div>
+
+            <Label className="text-sm font-medium text-foreground">
+              Invitar Amigos
+            </Label>
+            <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
+              <Users className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              <TagsSelector 
+                  tags={friendsTags}
+                  value={selectedFriends}
+                  onChange={handleFriendSelection}
+                  placeholder="Selecciona los amigos que quieres invitar"
+                  className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground"
+                />
+            </div>
           </div>
           
-          {/* Botones de acción */}
           <div className="flex justify-end gap-3 mt-6 pt-2">
             <Button 
               type="button" 
@@ -118,7 +198,7 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
             </Button>
             <Button 
               type="submit" 
-              disabled={loading}
+              disabled={loading || !targetDate}
               className="w-full rounded-lg font-medium shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creando...' : 'Crear objetivo'}

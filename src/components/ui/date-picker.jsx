@@ -1,0 +1,178 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+export function DatePicker({
+  date, 
+  onDateChange, 
+  placeholder = "dd/mm/aaaa",
+  disabledDate, // NUEVA PROP: Función que recibe una fecha y retorna true si debe estar deshabilitada
+  className = ""
+}) {
+  const controlledDate = date ? (date instanceof Date ? date : new Date(date)) : null;
+  const [internalDate, setInternalDate] = useState(controlledDate);
+  const [currentMonth, setCurrentMonth] = useState(controlledDate || new Date());
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (controlledDate) {
+      setInternalDate(controlledDate);
+      setCurrentMonth(new Date(controlledDate.getFullYear(), controlledDate.getMonth(), 1));
+    }
+  }, [controlledDate]);
+
+  // Cierra el calendario al hacer clic fuera de él
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const monthNames = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+
+  const dayNames = ['lu', 'ma', 'mi', 'ju', 'vi', 'sá', 'do'];
+
+  const getDaysInMonth = (dateObj) => {
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+    const adjustedStartDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
+
+    for (let i = 0; i < adjustedStartDay; i++) {
+      const prevMonthDay = new Date(year, month, -adjustedStartDay + i + 1);
+      days.push({ date: prevMonthDay, isCurrentMonth: false });
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+    }
+
+    const remainingDays = 42 - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+    }
+
+    return days;
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const handleDateSelect = (d) => {
+    if (onDateChange) {
+      onDateChange(d);
+    } else {
+      setInternalDate(d);
+    }
+    setIsOpen(false);
+  };
+
+  const formatDate = (d) => {
+    if (!d) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const isSelectedDate = (dateToCheck) => {
+    const cmp = controlledDate || internalDate;
+    if (!cmp) return false;
+    return cmp.toDateString() === dateToCheck.toDateString();
+  };
+
+  const days = getDaysInMonth(currentMonth);
+  const displayedDate = controlledDate || internalDate;
+
+  return (
+    <div className={`relative ${isOpen ? 'z-50' : ''} ${className}`} ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 border rounded-lg text-left flex items-center justify-between hover:border-primary/50 transition-colors bg-card text-foreground"
+        type="button"
+      >
+        <span className={displayedDate ? "text-foreground" : "text-muted-foreground"}>
+          {displayedDate ? formatDate(displayedDate) : placeholder}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full mt-2 left-0 right-0 bg-card rounded-xl shadow-lg border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={handlePrevMonth}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              type="button"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <div className="font-semibold text-foreground capitalize">
+              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            </div>
+            <button
+              onClick={handleNextMonth}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              type="button"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {dayNames.map((dn) => (
+              <div key={dn} className="text-center text-xs font-semibold text-muted-foreground py-1">
+                {dn}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {days.map((day, idx) => {
+              const isDisabledProp = disabledDate ? disabledDate(day.date) : false;
+              const disabled = !day.isCurrentMonth || isDisabledProp;
+              
+              const selected = isSelectedDate(day.date);
+              
+              return (
+                <button
+                  key={idx}
+                  onClick={() => !disabled && handleDateSelect(day.date)}
+                  disabled={disabled}
+                  type="button"
+                  className={`aspect-square flex items-center justify-center rounded-lg text-sm transition-all
+                    ${disabled ? 'text-muted-foreground/30 cursor-not-allowed bg-transparent hover:bg-transparent' : 'text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer'}
+                    ${selected && !disabled ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
+                >
+                  {day.date.getDate()}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default DatePicker;

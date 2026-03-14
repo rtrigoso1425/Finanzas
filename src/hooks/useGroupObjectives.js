@@ -72,10 +72,11 @@ export const useGroupObjectives = () => {
     }
   };
 
-  const createGroupObjective = async ( total_amount, objectiveName, end_date, description) => {
+  const createGroupObjective = async ( total_amount, objectiveName, end_date, description, invitedFriends ) => {
     try {
       setLoading(true);
       const newObjective = await groupObjectivesService.createGroupObjective(user.id, total_amount, objectiveName, end_date, description);
+      await groupObjectivesService.inviteFriendsToObjective(newObjective.id, invitedFriends);
       refetch(); // Forzamos la recarga de datos
       return newObjective;
     } catch (err) {
