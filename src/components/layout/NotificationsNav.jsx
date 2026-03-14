@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom"; // useNavigate estaba duplicado
+import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useGroupObjectives } from "@/hooks/useGroupObjectives";
-import { getTimeAgo } from "@/utils/timeAgo"; // Asegúrate de tener esta utilidad o usa una librería
+import { getTimeAgo } from "@/utils/timeAgo";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,7 +17,7 @@ import {
     FileText,
     UserPlus,
     Users,
-    Loader2, // Importamos icono de carga
+    Loader2,
     Check,
     X,
 } from "lucide-react";
@@ -34,49 +34,33 @@ const getInitials = (name) => {
 };
 
 export function NotificationsNav() {
-    // 1. CORRECCIÓN: Desestructuramos para obtener el array y el loading
     const { notifications, loading } = useNotifications();
-    const { invitations, acceptInvitation, rejectInvitation } = useGroupObjectives();
+    const { acceptInvitation, rejectInvitation } = useGroupObjectives();
     const [tab, setTab] = useState("all");
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { user: currentUser } = useSelector((state) => state.auth);
     const [processing, setProcessing] = useState(null);
 
-    // Transform group invitations
-    const transformedInvitations = invitations.map(inv => ({
-        id: `group-${inv.id}`,
-        rawId: inv.id,
-        type: 'group_invitation',
-        user: inv.group_objectives.profiles?.username || 'Usuario',
-        full_name: inv.group_objectives.profiles?.full_name || 'Usuario',
-        avatar_url: inv.group_objectives.profiles?.avatar_url,
-        action: `te invitó a unirte a "${inv.group_objectives.objective_name}"`,
-        timestamp: inv.created_at,
-        link: '/grupal-objectives',
-    }));
-
-    const allNotifications = [...notifications, ...transformedInvitations];
-
     // Filtros seguros (usando optional chaining por seguridad)
-    const notificationsCount = allNotifications?.filter((n) => n.type === "friend_request").length || 0;
-    const groupInvitationsCount = allNotifications?.filter((n) => n.type === "group_invitation").length || 0;
+    const notificationsCount = notifications?.filter((n) => n.type === "friend_request").length || 0;
+    const groupInvitationsCount = notifications?.filter((n) => n.type === "group_invitation").length || 0;
     
     const filtered = tab === "friend_request" 
-        ? allNotifications?.filter((n) => n.type === "friend_request") 
+        ? notifications?.filter((n) => n.type === "friend_request") 
         : tab === "group_invitations"
-        ? allNotifications?.filter((n) => n.type === "group_invitation")
-        : allNotifications;
+        ? notifications?.filter((n) => n.type === "group_invitation")
+        : notifications;
 
     const handleAccept = async (n) => {
         try {
             setProcessing(n.rawId);
             if (n.type === 'friend_request') {
                 await friendshipService.acceptRequest(n.friendshipId || n.id.replace('req-', ''));
-                dispatch(fetchNotifications(currentUser.id));
             } else if (n.type === 'group_invitation') {
                 await acceptInvitation(n.rawId);
             }
+            dispatch(fetchNotifications(currentUser.id));
             dispatch(removeNotification(n.rawId));
         } catch (err) {
             console.error(err);
@@ -109,7 +93,7 @@ export function NotificationsNav() {
             <PopoverTrigger asChild>
                 <Button
                     size="icon"
-                    variant="ghost" // Cambié a ghost para que se integre mejor en navbars
+                    variant="ghost"
                     className="relative rounded-full"
                     aria-label="Open notifications"
                 >
@@ -143,7 +127,7 @@ export function NotificationsNav() {
                                 )}
                             </TabsTrigger>
                             <TabsTrigger value="group_invitations" className="relative">
-                                Objetivos Grupales
+                                Invitaciones
                                 {groupInvitationsCount > 0 && (
                                     <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">
                                         {groupInvitationsCount}
@@ -166,25 +150,22 @@ export function NotificationsNav() {
                             </div>
                         ) : (
                             filtered.map((n) => {
-                                // Mapeo de íconos según tipo
-                                const Icon = n.type === "friend_request" ? UserPlus : n.type === "group_invitation" ? FileText : Users;
-                                const iconColor = n.type === "friend_request" ? "text-blue-500" : n.type === "group_invitation" ? "text-gray-500" : "text-green-500";
+                                const Icon = n.type === "friend_request" ? UserPlus : n.type === "friend" ? Users : FileText;
+                                const iconColor = n.type === "friend_request" ? "text-blue-500" : n.type === "friend" ? "text-green-500" : "text-gray-500";
                                 
                                 return (
-                                    <button
+                                    <div // Cambiado de button a div
                                         key={n.id}
                                         onClick={() => {
-                                            // Lógica opcional para cerrar el popover aquí si usas un estado controlado
                                             navigate(n.link);
                                         }}
-                                        className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors border-b last:border-0"
+                                        className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors border-b last:border-0 cursor-pointer"
                                     >
                                         <div className="relative">
                                             <Avatar className="h-10 w-10 border">
                                                 <AvatarImage src={n.avatar_url} alt="Avatar" />
                                                 <AvatarFallback>{getInitials(n.user)}</AvatarFallback>
                                             </Avatar>
-                                            {/* Icono pequeño superpuesto al avatar */}
                                             <div className={`absolute -bottom-1 -right-1 rounded-full bg-background p-0.5 shadow-sm border ${iconColor}`}>
                                                 <Icon size={12} strokeWidth={3} />
                                             </div>
@@ -200,21 +181,35 @@ export function NotificationsNav() {
                                             </p>
                                             {(n.type === 'friend_request' || n.type === 'group_invitation') && (
                                                 <div className="mt-2 flex gap-2">
-                                                    <Button onClick={() => handleAccept(n)} disabled={processing === n.rawId} size="sm">
+                                                    <Button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleAccept(n);
+                                                        }} 
+                                                        disabled={processing === n.rawId} 
+                                                        size="sm"
+                                                    >
                                                         {processing === n.rawId ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check size={12} />} Aceptar
                                                     </Button>
-                                                    <Button variant="ghost" onClick={() => handleReject(n)} disabled={processing === n.rawId} size="sm">
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleReject(n);
+                                                        }} 
+                                                        disabled={processing === n.rawId} 
+                                                        size="sm"
+                                                    >
                                                         <X size={12} /> Rechazar
                                                     </Button>
                                                 </div>
                                             )}
                                         </div>
                                         
-                                        {/* Indicador de no leído (si tu backend lo soporta, sino quitar) */}
                                         {n.unread && (
                                             <span className="h-2 w-2 rounded-full bg-blue-600 mt-2" />
                                         )}
-                                    </button>
+                                    </div>
                                 );
                             })
                         )}

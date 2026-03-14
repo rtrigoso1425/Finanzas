@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { friendshipService } from '../friendship/friendshipService'; // Ajusta la ruta
+import { groupObjectivesService } from '../groupObjectives/groupObjectivesService';
 
 // 1. Thunk para cargar notificaciones (Lógica movida desde el hook antiguo)
 export const fetchNotifications = createAsyncThunk(
@@ -11,6 +12,10 @@ export const fetchNotifications = createAsyncThunk(
                 friendshipService.getFriends(userId)
             ]);
 
+            const [invitationsData, groupObjectivesData] = await Promise.all([
+                groupObjectivesService.getInvitations(userId),
+                groupObjectivesService.getGroupObjectives(userId)
+            ]);
             const tempNotifications = [];
 
             // A. Procesar Solicitudes
@@ -49,6 +54,40 @@ export const fetchNotifications = createAsyncThunk(
                         avatar_url: otherProfile.avatar_url,
                         type: "friend",
                         link: `/profile/${otherProfile.username}`,
+                    });
+                });
+            }
+
+            //C. Procesar Invitaciones a Objetivos Grupales (si es necesario)
+            if (invitationsData) {
+                invitationsData.forEach(invite => {
+                    tempNotifications.push({
+                        id: `invite-${invite.id}`,
+                        rawId: invite.group_goal_id, // ID del objetivo grupal para aceptar/rechazar
+                        user: invite.group_objectives.profiles.username,
+                        full_name: invite.group_objectives.profiles.full_name,
+                        action: "te ha invitado a unirte a un objetivo grupal",
+                        timestamp: invite.updated_at || invite.created_at,
+                        avatar_url: invite.group_objectives.profiles.avatar_url,
+                        type: "group_invitation",
+                        link: `/group-objectives`,
+                    });
+                });
+            }
+
+            //D. Procesar Objetivos Grupales
+            if (groupObjectivesData) {
+                groupObjectivesData.forEach(objective => {
+                    tempNotifications.push({
+                        id: `objective-${objective.id}`,
+                        rawId: objective.id,
+                        user: objective.profiles.username,
+                        full_name: objective.profiles.full_name,
+                        action: `Te uniste al objetivo grupal ${objective.group_objectives.objective_name}`,
+                        timestamp: objective.updated_at || objective.created_at,
+                        avatar_url: objective.profiles.avatar_url,
+                        type: "group_objective",
+                        link: `/group-objectives/${objective.id}`,
                     });
                 });
             }

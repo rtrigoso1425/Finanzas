@@ -51,5 +51,43 @@ export const groupObjectivesService = {
             .eq("state", "pending");
         if (error) throw error;
         return data;
+    },
+
+    async acceptInvitation(currentUser, groupGoalId) {
+        const { data, error } = await supabase
+            .from("group_members")
+            .update({ state: 'active', updated_at: new Date() })
+            .eq("group_goal_id", groupGoalId)
+            .eq("member_id", currentUser.id);
+        if (error) throw error;
+        return data;
+    },
+
+    async declineInvitation(currentUser, groupGoalId) {
+        const { error } = await supabase
+            .from("group_members")
+            .delete()
+            .eq("group_goal_id", groupGoalId)
+            .eq("member_id", currentUser.id);
+        if (error) throw error;
+    },
+
+    async createGroupObjective(ownerId, total_amount, objectiveName, end_date, description ) {
+        const { data, error } = await supabase
+            .from("group_objectives")
+            .insert({
+                owner_id: ownerId,
+                total_amount: total_amount,
+                created_at: new Date(),
+                end_date : end_date,
+                remaining_amount: total_amount,
+                public: false,
+                objective_name: objectiveName,
+                description: description,
+            })
+            .select("*")
+            .single();
+        if (error) throw error;
+        return data;
     }
 }

@@ -29,7 +29,6 @@ export function FriendCard({
       try {
         const avg = await reviewsService.getAverageRatingForUser(friend.id);
         setRaitingAverage(Number(avg));
-        console.log("Raiting promedio para", friend.username, ":", avg);
       } catch (error) {
         console.error("Error obteniendo rating:", error);
       }

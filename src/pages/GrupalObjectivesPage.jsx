@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useGroupObjectives } from '@/hooks/useGroupObjectives';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,16 +7,18 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
   CardFooter,
 } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import GroupObjectiveCard from '@/components/GroupObjectiveCard';
+// Importamos el nuevo modal (asegúrate de que la ruta sea correcta según tu proyecto)
+import CreateGroupObjectiveModal from '../components/CreateGroupObjectiveModal';
 
 const GrupalObjectivesPage = () => {
   const { myObjectives, invitations, loading, error, acceptInvitation, rejectInvitation } = useGroupObjectives();
   const [tab, setTab] = useState('mine');
+  
+  // Estado para controlar el modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // only count objectives whose end date is in the future
   const now = new Date();
@@ -25,6 +26,7 @@ const GrupalObjectivesPage = () => {
     (obj) => new Date(obj.group_objectives.end_date) > now
   );
   const canCreate = activeObjectives.length < 5;
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -43,15 +45,14 @@ const GrupalObjectivesPage = () => {
 
   return (
     <div className="space-y-6 p-4">
-      {/* header con título y botón de creación */}
-      <div className="flex items-center justify-between">
+      {/* header con título y botón de apertura del modal */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Objetivos grupales</h1>
-        <Button disabled={!canCreate} asChild={canCreate}>
-          {canCreate ? (
-            <Link to="/grupal-objectives/create">Crear objetivo grupal</Link>
-          ) : (
-            'Limite alcanzado'
-          )}
+        <Button 
+          disabled={!canCreate} 
+          onClick={() => setIsModalOpen(true)}
+        >
+          {canCreate ? 'Crear objetivo grupal' : 'Límite alcanzado'}
         </Button>
       </div>
 
@@ -65,8 +66,7 @@ const GrupalObjectivesPage = () => {
         <TabsContent value="mine">
           {activeObjectives.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
-              Aún no tienes objetivos grupales. Usa el botón de arriba para crear
-              uno.
+              Aún no tienes objetivos grupales. Usa el botón de arriba para crear uno.
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -107,14 +107,14 @@ const GrupalObjectivesPage = () => {
                   <CardFooter className="space-x-2">
                     <Button
                       size="sm"
-                      onClick={() => acceptInvitation(inv.id)}
+                      onClick={() => acceptInvitation(inv.group_goal_id)}
                     >
                       Aceptar
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => rejectInvitation(inv.id)}
+                      onClick={() => rejectInvitation(inv.group_goal_id)}
                     >
                       Rechazar
                     </Button>
@@ -125,6 +125,12 @@ const GrupalObjectivesPage = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Renderizamos el Modal aquí */}
+      <CreateGroupObjectiveModal 
+        isOpen={isModalOpen} 
+        onOpenChange={setIsModalOpen} 
+      />
     </div>
   );
 };

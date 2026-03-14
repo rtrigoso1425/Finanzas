@@ -19,7 +19,6 @@ import BalancePage from './pages/Balance';
 import GrupalObjectivesPage from './pages/GrupalObjectivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import NotificationsPage from './pages/NotificationsPage';
-import CreateGroupObjectivePage from './pages/CreateGroupObjectivePage';
 
 function App() {
   const dispatch = useDispatch();
@@ -96,7 +95,6 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/balance" element={<BalancePage />} />
           <Route path="/grupal-objectives" element={<GrupalObjectivesPage />} />
-          <Route path="/grupal-objectives/create" element={<CreateGroupObjectivePage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
         </Route>

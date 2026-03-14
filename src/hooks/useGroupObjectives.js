@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/features/supabase/supabaseClient';
 import { useSelector } from 'react-redux';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
 
@@ -49,14 +48,10 @@ export const useGroupObjectives = () => {
   // Función auxiliar para forzar la recarga
   const refetch = () => setRefetchTrigger(prev => prev + 1);
 
-  const acceptInvitation = async (memberId) => {
+  const acceptInvitation = async (groupId) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('group_members')
-        .update({ state: 'active' })
-        .eq('id', memberId);
-      if (error) throw error;
+      groupObjectivesService.acceptInvitation(user,groupId);
       refetch(); // Volvemos a disparar el useEffect
     } catch (err) {
       console.error('Error aceptando:', err);
@@ -65,17 +60,26 @@ export const useGroupObjectives = () => {
     }
   };
 
-  const rejectInvitation = async (memberId) => {
+  const rejectInvitation = async (groupId) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('group_members')
-        .delete()
-        .eq('id', memberId);
-      if (error) throw error;
+      groupObjectivesService.declineInvitation(user, groupId);
       refetch(); // Volvemos a disparar el useEffect
     } catch (err) {
       console.error('Error rechazando:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const createGroupObjective = async ( total_amount, objectiveName, end_date, description) => {
+    try {
+      setLoading(true);
+      const newObjective = await groupObjectivesService.createGroupObjective(user.id, total_amount, objectiveName, end_date, description);
+      refetch(); // Forzamos la recarga de datos
+      return newObjective;
+    } catch (err) {
+      console.error('Error creando objetivo grupal:', err);
       setError(err.message);
       setLoading(false);
     }
@@ -88,6 +92,7 @@ export const useGroupObjectives = () => {
     error,
     acceptInvitation,
     rejectInvitation,
+    createGroupObjective,
     refetch // Exponemos refetch por si lo necesitas en algún botón
   };
 };
