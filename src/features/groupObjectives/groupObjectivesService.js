@@ -113,5 +113,72 @@ export const groupObjectivesService = {
                 }))
             );
         if (error) throw error;
+    },
+
+    async isInGroupObjective(userId, groupGoalId) {
+        const { data, error } = await supabase
+            .from('group_members')
+            .select('*')
+            .eq('member_id', userId)
+            .eq('group_goal_id', groupGoalId)
+            .maybeSingle();
+        if (error) throw error;
+        return !!data;
+    },
+
+    async getGroupObjectiveById(groupGoalId) {
+        const { data, error } = await supabase
+            .from('group_objectives')
+            .select(`*,
+                profiles!owner_id(
+                    id,
+                    full_name,
+                    username,
+                    avatar_url
+                ),
+                group_members (
+                    id,
+                    member_id,
+                    state,
+                    contribution,
+                    created_at,
+                    profiles!member_id (
+                        id,
+                        full_name,
+                        username,
+                        avatar_url
+                    ),
+                    group_objectives_income (
+                        id,
+                        income,
+                        verified,
+                        message,
+                        created_at
+                    )
+                )
+            `)
+            .eq('id', groupGoalId)
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async verifyIncome(incomeId, verified = true) {
+        const { data, error } = await supabase
+            .from('group_objectives_income')
+            .update({ verified })
+            .eq('id', incomeId)
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async cancelInvitation(groupGoalId, memberId) {
+        const { error } = await supabase
+            .from('group_members')
+            .delete()
+            .eq('group_goal_id', groupGoalId)
+            .eq('member_id', memberId);
+        if (error) throw error;
     }
-}
+};

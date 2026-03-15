@@ -19,6 +19,8 @@ import BalancePage from './pages/Balance';
 import GrupalObjectivesPage from './pages/GrupalObjectivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import NotificationsPage from './pages/NotificationsPage';
+import GroupObjectiveRoute from './components/GroupObjectiveRoute';
+import GrupalObjectivePage from './pages/GrupalObjectivePage';
 
 function App() {
   const dispatch = useDispatch();
@@ -97,6 +99,9 @@ function App() {
           <Route path="/grupal-objectives" element={<GrupalObjectivesPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/grupal-objectives/:groupGoalId" element={<GroupObjectiveRoute />}>
+            <Route index element={<GrupalObjectivePage />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

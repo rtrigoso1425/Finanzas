@@ -45,6 +45,7 @@ const LoginPage = () => {
             alert("Error: " + error.message);
         } finally {
             setLoading(false);
+            window.location.reload(); // Recarga la página para asegurar que el estado se actualice en todos los componentes
         }
     };
 

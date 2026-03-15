@@ -110,7 +110,7 @@ const GroupObjectiveCard = ({ membership }) => {
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
               <span className={isOverdue ? 'text-red-500' : ''}>
-                {isOverdue ? 'T. Excedido' : 'T. Restante'}
+                {isOverdue ? 'Dias Excedidos' : 'Dias Restantes'}
               </span>
             </div>
             {/* Nota: className [&>div] inyecta el color verde si tu componente Progress de shadcn usa la variable primaria por defecto */}
@@ -123,7 +123,7 @@ const GroupObjectiveCard = ({ membership }) => {
           {/* Money Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
-              <span>Financiero</span>
+              <span>Dinero faltante</span>
             </div>
             <Progress value={moneyProgress} className="h-2 bg-slate-200 [&>div]:bg-green-500" />
             <span className="font-mono text-green-600">
@@ -141,7 +141,7 @@ const GroupObjectiveCard = ({ membership }) => {
 
         {/* Botón de Redirección */}
         <a 
-          href={`/objetivos/${goal.id}`} 
+          href={`/grupal-objectives/${goal.id}`} 
           className="mt-6 w-full group/btn flex items-center justify-center gap-2 bg-transparent border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-bold uppercase tracking-widest py-3 px-4 rounded-xl transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
         >
           Ver Objetivo
