@@ -168,7 +168,6 @@ export const groupObjectivesService = {
             .from('group_objectives_income')
             .update({ verified })
             .eq('id', incomeId)
-            .single();
         if (error) throw error;
         return data;
     },

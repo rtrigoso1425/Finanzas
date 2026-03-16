@@ -6,7 +6,6 @@ export const groupIncomesService = {
         if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
             throw new Error('El monto debe ser un número positivo');
         }
-        console.log( { MemberId });
 
         const { data: income, error: incomeError } = await supabase
             .from('group_objectives_income')

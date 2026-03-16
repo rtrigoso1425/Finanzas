@@ -79,7 +79,6 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
     setLoading(true);
     try {
       await createGroupObjective(targetAmount, objectiveName, targetDate, description, selectedFriends);
-      console.log("amigos seleccionados para invitar:", selectedFriends);
 
       // Limpiamos el formulario y cerramos el modal
       setObjectiveName('');

@@ -87,7 +87,7 @@ export const fetchNotifications = createAsyncThunk(
                         timestamp: objective.updated_at || objective.created_at,
                         avatar_url: objective.profiles.avatar_url,
                         type: "group_objective",
-                        link: `/group-objectives/${objective.id}`,
+                        link: `/grupal-objectives/${objective.group_goal_id}`,
                     });
                 });
             }
