@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { useFriendship } from '@/hooks/useFriendship';
 import { fetchUserByUsername, clearSearchedUser } from '../features/user/userSlice';
@@ -45,8 +45,7 @@ const ProfilePage = () => {
     }
 
     if (pageStatus === 'failed') {
-        navigate('/dashboard'); 
-        return null;
+        return <Navigate to="/dashboard" replace />;
     }
 
     if (!searchedUser) return null;

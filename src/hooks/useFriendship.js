@@ -34,7 +34,8 @@ export const useFriendship = (currentUser, targetUserId, initialStatus = 'none',
             const data = await friendshipService.sendRequest(currentUser.id, targetUserId);
             updateState('pending_sent', data.id);
         } catch (error) {
-            alert("Error enviando solicitud");
+            console.error("Error detallado de Supabase:", error); 
+            alert(`Error: ${error.message || error.details || "Revisa la consola"}`);
         } finally {
             setLoading(false);
         }

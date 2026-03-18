@@ -11,7 +11,7 @@ export const fetchUserByUsername = createAsyncThunk(
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('id, full_name, username, avatar_url')
-                .eq('username', username)
+                .ilike('username', username)
                 .single();
 
             if (error) throw error;

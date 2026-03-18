@@ -24,7 +24,7 @@ const RegisterPage = () => {
         setError('');
         try {
         // Enviamos los datos al authService
-            const data = await authService.register(email, password, fullname, username);
+            const data = await authService.register(email, password, fullname.trim().replace(/\s+/g, '_'), username);
 
             // Si el registro es exitoso pero el usuario requiere confirmación de email
             // Supabase devuelve el usuario pero session es null
