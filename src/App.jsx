@@ -79,6 +79,21 @@ function App() {
     return () => subscription.unsubscribe();
   }, [dispatch]);
 
+  useEffect(() => {
+    const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const root = document.documentElement;
+
+    if (lang.startsWith('es')) {
+      root.setAttribute('lang', 'es-419');
+      root.setAttribute('translate', 'no');
+    } else {
+      // Si no está en Español, seguimos manteniendo la página en español latinoamericano,
+      // con instrucción para no traducir las zonas críticas.
+      root.setAttribute('lang', 'es-419');
+      root.setAttribute('translate', 'no');
+    }
+  }, []);
+
   // ... (El resto de tu return con las Routes se queda igual)
   return (
     <Routes>

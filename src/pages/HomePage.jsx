@@ -49,7 +49,7 @@ const HomePage = () => {
             </span>
           )}
         </div>
-        <nav>
+        <nav translate="no">
           <ul
             style={{
               listStyle: "none",
@@ -67,7 +67,7 @@ const HomePage = () => {
                   </span>
                 </li>
                 <li>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard" translate="no">Tablero</Link>
                 </li>
                 <li>
                   <button onClick={onLogout}>Cerrar Sesión</button>
@@ -76,10 +76,10 @@ const HomePage = () => {
             ) : (
               <>
                 <li>
-                  <Link to="/login">Login</Link>
+                  <Link to="/login" translate="no">Iniciar sesión</Link>
                 </li>
                 <li>
-                  <Link to="/register">Register</Link>
+                  <Link to="/register" translate="no">Registrarse</Link>
                 </li>
               </>
             )}

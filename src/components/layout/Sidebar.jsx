@@ -19,6 +19,7 @@ function SidebarLink({ icon: Icon, label, to, active, isCollapsed, isSubItem = f
   const content = (
     <Link
       to={to}
+      translate="no"
       className={cn(
         "flex items-center gap-3 py-2.5 rounded-lg transition-all duration-200 group font-medium",
         active
@@ -126,7 +127,7 @@ export function Sidebar({ isCollapsed, onToggle }) {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-4 space-y-4">
         <SidebarLink
           icon={LayoutDashboard}
-          label="Dashboard"
+          label="Tablero"
           to="/dashboard"
           active={isActive("/dashboard")}
           isCollapsed={isCollapsed}
