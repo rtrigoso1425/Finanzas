@@ -27,16 +27,14 @@ const RegisterPage = () => {
         setSuccessMessage('');
 
         try {
-            // Enviamos los datos al authService
             const data = await authService.register(
                 email, 
                 password, 
-                fullname,
+                fullname, 
                 username.trim().replace(/\s+/g, '_')
             );
 
-            // ESCENARIO 1: El correo ya estaba en uso. 
-            // Supabase, por seguridad, devuelve el user pero con 'identities' vacío en lugar de un error.
+            // ESCENARIO 1: El correo ya estaba en uso (Supabase lo oculta devolviendo identities vacío)
             if (data.user && data.user.identities && data.user.identities.length === 0) {
                 setError("El correo electrónico ya está en uso.");
                 setLoading(false);
@@ -46,7 +44,6 @@ const RegisterPage = () => {
             // ESCENARIO 2: Registro exitoso. Se debe confirmar el correo.
             if (data.user) {
                 setSuccessMessage("¡Registro exitoso! Por favor, revisa tu bandeja de entrada y confirma tu correo electrónico.");
-                // Limpiamos el formulario
                 setEmail('');
                 setPassword('');
                 setFullname('');
@@ -56,24 +53,25 @@ const RegisterPage = () => {
             }
 
         } catch (error) {
-            // Convertimos a minúsculas para evaluar más fácil
+
             const msg = error.message?.toLowerCase() || "";
             
-            // 1. Interceptar el error 429 (Too Many Requests / Rate limit)
+            // 1. Demasiadas peticiones
             if (msg.includes('rate limit') || msg.includes('too many requests') || error.status === 429) {
                 setError("Demasiados intentos. Por favor, espera unos minutos y vuelve a intentarlo.");
             } 
-            // 2. Interceptar cuando el Username choca con la BD
-            else if (msg.includes('database error saving new user') || msg.includes('duplicate') || msg.includes('username')) {
+            // 2. Error en la Base de Datos (ESCENARIO 3: Username duplicado)
+            else if (msg.includes('database error saving new user') || msg.includes('duplicate')) {
                 setError("El nombre de usuario ya está en uso.");
             } 
-            // 3. Interceptar cuando el correo está en uso
-            else if (msg.includes('email') || msg.includes('already registered')) {
+            // 3. Correo explícitamente duplicado
+            else if (msg.includes('user already registered')) {
                 setError("El correo electrónico ya está en uso.");
             } 
-            // 4. Cualquier otro error no previsto
+            // Si es un error diferente (ej. contraseña débil, error enviando el email, etc)
+            // Mostramos el mensaje literal de Supabase para no engañar al usuario
             else {
-                setError(error.message || "Ocurrió un error inesperado al registrarse.");
+                setError(`Error: ${error.message}`);
             }
         } finally {
             setLoading(false);
