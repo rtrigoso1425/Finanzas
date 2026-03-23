@@ -1,7 +1,7 @@
 import { supabase } from "../supabase/supabaseClient";  
 
 export const groupIncomesService = {
-    async addContribution(groupGoalId, MemberId, amount, message = '') {
+    async addContribution( MemberId, amount, message = '') {
         const parsedAmount = Number(amount);
         if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
             throw new Error('El monto debe ser un número positivo');
@@ -22,5 +22,14 @@ export const groupIncomesService = {
         if (incomeError) throw incomeError;
 
         return income;
+    },
+
+    async verifyIncome(incomeId, verified = true) {
+        const { data, error } = await supabase
+            .from('group_objectives_income')
+            .update({ verified })
+            .eq('id', incomeId)
+        if (error) throw error;
+        return data;
     },
 };

@@ -163,15 +163,6 @@ export const groupObjectivesService = {
         return data;
     },
 
-    async verifyIncome(incomeId, verified = true) {
-        const { data, error } = await supabase
-            .from('group_objectives_income')
-            .update({ verified })
-            .eq('id', incomeId)
-        if (error) throw error;
-        return data;
-    },
-
     async cancelInvitation(groupGoalId, memberId) {
         const { error } = await supabase
             .from('group_members')
