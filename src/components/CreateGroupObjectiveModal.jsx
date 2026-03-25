@@ -85,12 +85,12 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
       setDescription('');
       setTargetDate('');
       onOpenChange(false);
-      //window.location.reload();
     } catch (err) {
       console.error('Error creando objetivo grupal:', err);
       alert('No se pudo crear el objetivo');
     } finally {
       setLoading(false);
+      window.location.reload();
     }
   };
 

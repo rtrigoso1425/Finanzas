@@ -35,7 +35,7 @@ export const uploadProfileImageFeature = async (file, user, bucketName = 'profil
     // 2. NOMBRE FIJO (Sin timestamp aquí)
     // Al usar siempre el mismo nombre, Supabase sobreescribirá el archivo anterior.
     // Así mantienes tu Storage limpio con solo 1 foto por usuario.
-    const fileName = `${user.email}.jpg`;
+    const fileName = `${user.username}.jpg`;
 
     // 3. SUBIDA (Con upsert: true para forzar la sobreescritura)
     const { error: storageError } = await supabase.storage

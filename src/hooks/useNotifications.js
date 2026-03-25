@@ -10,8 +10,6 @@ export const useNotifications = () => {
     const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        // Solo cargamos si tenemos usuario Y si no se han cargado antes (status === 'idle')
-        // Esto elimina el cooldown: si ya están cargadas, no hace nada.
         if (user && status === 'idle') {
             dispatch(fetchNotifications(user.id));
         }

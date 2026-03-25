@@ -6,6 +6,13 @@ export const groupObjectivesService = {
             .from("group_members")
             .select(`
                 *,
+                group_objectives_income!id (
+                id,
+                income,
+                verified,
+                message,
+                created_at
+                ),
                 profiles!member_id(
                     id,
                     full_name,

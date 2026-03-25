@@ -8,8 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-// Si usas lucide-react para iconos, puedes descomentar la siguiente línea
-// import { ArrowRight, CheckCircle2 } from 'lucide-react';
+
 
 const GroupObjectiveCard = ({ membership }) => {
   const goal = membership.group_objectives;

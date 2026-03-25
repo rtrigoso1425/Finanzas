@@ -27,8 +27,8 @@ export const groupIncomesService = {
     async verifyIncome(incomeId, verified = true) {
         const { data, error } = await supabase
             .from('group_objectives_income')
-            .update({ verified })
-            .eq('id', incomeId)
+            .update({ verified, updated_at: new Date() })
+            .eq('id', incomeId);
         if (error) throw error;
         return data;
     },

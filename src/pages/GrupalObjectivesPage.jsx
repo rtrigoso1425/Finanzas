@@ -10,7 +10,6 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import GroupObjectiveCard from '@/components/GroupObjectiveCard';
-// Importamos el nuevo modal (asegúrate de que la ruta sea correcta según tu proyecto)
 import CreateGroupObjectiveModal from '../components/CreateGroupObjectiveModal';
 
 const GrupalObjectivesPage = () => {
