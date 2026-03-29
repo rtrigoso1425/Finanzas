@@ -3,9 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { TagsSelector } from "@/components/ui/tags-selector";
 import { useGroupObjectives } from '@/hooks/useGroupObjectives';
-import { Target, FileText, Calendar, DollarSign, Users } from 'lucide-react';
+import { Target, FileText, Calendar, DollarSign } from 'lucide-react';
 import { friendshipService } from '@/features/friendship/friendshipService';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -14,8 +13,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
-import DatePicker from './ui/date-picker'; // Asegúrate de que la ruta apunte a tu componente
+import DatePicker from './ui/date-picker';
+import { MemberSelector } from '@/components/member-selector';
 
 const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -30,18 +31,12 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
   
   const { createGroupObjective } = useGroupObjectives();
 
-  const handleFriendSelection = (selected) => {
-    setSelectedFriends(selected);
-  }
-
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         if (currentUser?.id) {
-          // 4. Usar await para esperar la respuesta real
           const response = await friendshipService.getFriends(currentUser.id);
         
-          // Asegúrate de que response sea el array, a veces viene en response.data
           setFriends(response);
         }
       } catch (error) {
@@ -64,10 +59,16 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
     return compareDate < maxDate;
   };
   
-  const friendsTags = friends.map((friend) => ({
-    id: friend.friend_requested === currentUser.id ? friend.requester.id : friend.requested.id,
-    label: friend.friend_requested === currentUser.id ? friend.requester.username : friend.requested.username,
-  }));
+  const mappedFriends = friends.map((friend) => {
+    const user = friend.friend_requested === currentUser.id ? friend.requester : friend.requested;
+    return {
+      id: user.id,
+      name: user.username,
+      username: user.username,
+      avatar: user.avatar || null,
+      avatar_url: user.avatar_url || null,
+    };
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,7 +81,6 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
     try {
       await createGroupObjective(targetAmount, objectiveName, targetDate, description, selectedFriends);
 
-      // Limpiamos el formulario y cerramos el modal
       setObjectiveName('');
       setDescription('');
       setTargetDate('');
@@ -104,6 +104,9 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
           <p className="text-sm text-center text-muted-foreground mt-1">
             Configura los detalles para empezar a ahorrar en equipo
           </p>
+          <DialogDescription className="sr-only">
+            Formulario para crear un nuevo objetivo financiero grupal.
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
@@ -135,6 +138,7 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
                 placeholder="Ej. $1000"
+                min ="1"
                 required
                 className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground bg-transparent"
               />
@@ -159,7 +163,6 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
             <Label className="text-sm font-medium text-foreground">
               Fecha límite
             </Label>
-            {/* ELIMINADO: relative z-50 */}
             <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
               <Calendar className="w-5 h-5 text-muted-foreground flex-shrink-0" />
               <DatePicker
@@ -173,16 +176,12 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
             <Label className="text-sm font-medium text-foreground">
               Invitar Amigos
             </Label>
-            <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
-              <Users className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              <TagsSelector 
-                  tags={friendsTags}
-                  value={selectedFriends}
-                  onChange={handleFriendSelection}
-                  placeholder="Selecciona los amigos que quieres invitar"
-                  className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground"
-                />
-            </div>
+            <MemberSelector 
+              members={mappedFriends}
+              selected={selectedFriends}
+              onChange={setSelectedFriends}
+              label="Invitar Amigos"
+            />
           </div>
           
           <div className="flex justify-end gap-3 mt-6 pt-2">

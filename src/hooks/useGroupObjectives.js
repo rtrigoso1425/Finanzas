@@ -8,16 +8,14 @@ export const useGroupObjectives = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Usaremos este número para forzar la recarga de datos sin depender de funciones
   const [refetchTrigger, setRefetchTrigger] = useState(0); 
   
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Si no hay usuario, no hacemos nada (evita errores y llamadas vacías)
     if (!user?.id) return;
 
-    let isMounted = true; // Previene actualizaciones de estado si el componente se desmonta
+    let isMounted = true;
 
     const loadData = async () => {
       setLoading(true);
@@ -43,16 +41,15 @@ export const useGroupObjectives = () => {
     loadData();
 
     return () => { isMounted = false; };
-  }, [user?.id, refetchTrigger]); // <-- LA CLAVE: Solo se ejecuta si cambia el ID o sumamos 1 al trigger
+  }, [user?.id, refetchTrigger]);
 
-  // Función auxiliar para forzar la recarga
   const refetch = () => setRefetchTrigger(prev => prev + 1);
 
   const acceptInvitation = async (groupId) => {
     try {
       setLoading(true);
       groupObjectivesService.acceptInvitation(user,groupId);
-      refetch(); // Volvemos a disparar el useEffect
+      refetch();
     } catch (err) {
       console.error('Error aceptando:', err);
       setError(err.message);
@@ -64,7 +61,7 @@ export const useGroupObjectives = () => {
     try {
       setLoading(true);
       groupObjectivesService.declineInvitation(user, groupId);
-      refetch(); // Volvemos a disparar el useEffect
+      refetch();
     } catch (err) {
       console.error('Error rechazando:', err);
       setError(err.message);
@@ -77,7 +74,7 @@ export const useGroupObjectives = () => {
       setLoading(true);
       const newObjective = await groupObjectivesService.createGroupObjective(user.id, total_amount, objectiveName, end_date, description);
       await groupObjectivesService.inviteFriendsToObjective(newObjective.id, invitedFriends);
-      refetch(); // Forzamos la recarga de datos
+      refetch();
       return newObjective;
     } catch (err) {
       console.error('Error creando objetivo grupal:', err);
@@ -94,6 +91,6 @@ export const useGroupObjectives = () => {
     acceptInvitation,
     rejectInvitation,
     createGroupObjective,
-    refetch // Exponemos refetch por si lo necesitas en algún botón
+    refetch
   };
 };

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { economyService } from '../features/economyService/economyService';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
+import { objectivesService } from '@/features/objectives/objectivesService';
 
 export const useBalance = () => {
     const [incomes, setIncomes] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [groupExpenses, setGroupExpenses] = useState([]);
+    const [objectivesExpenses, setObjectivesExpenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useSelector((state) => state.auth);
@@ -20,15 +22,18 @@ export const useBalance = () => {
                 const incomePromise = economyService.getIncomesData(user.id);
                 const expensesPromise = economyService.getExpensesData(user.id);
                 const groupExpensesPromise = groupObjectivesService.getGroupObjectives(user.id);
-                const [incomeData, expensesData, groupExpensesData] = await Promise.all([
+                const objectiveExpensesPromise = objectivesService.getObjectives(user.id);
+                const [incomeData, expensesData, groupExpensesData, objectiveExpensesData] = await Promise.all([
                     incomePromise,
                     expensesPromise,
-                    groupExpensesPromise
+                    groupExpensesPromise,
+                    objectiveExpensesPromise
                 ]);
                 if (isMounted) {
                     setIncomes(incomeData || []);
                     setExpenses(expensesData || []);
                     setGroupExpenses(groupExpensesData || []);
+                    setObjectivesExpenses(objectiveExpensesData || []);
                     setError(null);
                 }
             } catch (error) {

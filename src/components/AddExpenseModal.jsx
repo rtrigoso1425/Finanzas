@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useSelector } from 'react-redux';
 import { DollarSign, ClipboardType } from 'lucide-react';
 import { useState } from 'react';
@@ -41,6 +41,9 @@ const AddExpenseModal = ({ isOpen, onOpenChange }) => {
                     <p className="text-sm text-center text-muted-foreground mt-1">
                         Ingresa el monto del gasto.
                     </p>
+                    <DialogDescription className="sr-only">
+                        Formulario para registrar un nuevo gasto financiero.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 mt-2">

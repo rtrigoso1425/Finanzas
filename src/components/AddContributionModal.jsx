@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
   const [amount, setAmount] = useState('');
@@ -47,6 +47,9 @@ const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
           <p className="text-sm text-center text-muted-foreground mt-1">
             Ingresa el monto y, si quieres, un comentario opcional.
           </p>
+          <DialogDescription className="sr-only">
+            Formulario para registrar un nuevo aporte financiero.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">

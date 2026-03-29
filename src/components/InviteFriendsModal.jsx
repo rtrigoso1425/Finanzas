@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { TagsSelector } from '@/components/ui/tags-selector';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Users } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useSelector } from 'react-redux';
 import { friendshipService } from '@/features/friendship/friendshipService';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
+import { MemberSelector } from '@/components/member-selector';
 
 const InviteFriendsModal = ({ isOpen, onOpenChange, groupGoalId, onInvited }) => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -43,17 +41,6 @@ const InviteFriendsModal = ({ isOpen, onOpenChange, groupGoalId, onInvited }) =>
     }
   }, [currentUser?.id, groupGoalId, isOpen]);
 
-  const handleFriendSelection = (selected) => {
-    const filtered = selected.filter((id) => !existingMemberIds.has(id));
-    setSelectedFriends(filtered);
-  };
-
-  // Si el grupo cambia mientras el modal está abierto, garantizamos que no queden IDs ya miembros seleccionados.
-  useEffect(() => {
-    if (!existingMemberIds.size) return;
-    setSelectedFriends((current) => current.filter((id) => !existingMemberIds.has(id)));
-  }, [existingMemberIds]);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!groupGoalId) return;
@@ -72,13 +59,21 @@ const InviteFriendsModal = ({ isOpen, onOpenChange, groupGoalId, onInvited }) =>
     }
   };
 
-  const friendsTags = friends
-    .map((friend) => {
+  const mappedFriends = friends
+    .filter((friend) => {
       const id = friend.friend_requested === currentUser.id ? friend.requester.id : friend.requested.id;
-      const label = friend.friend_requested === currentUser.id ? friend.requester.username : friend.requested.username;
-      return { id, label };
+      return !existingMemberIds.has(id);
     })
-    .filter((friend) => !existingMemberIds.has(friend.id));
+    .map((friend) => {
+      const user = friend.friend_requested === currentUser.id ? friend.requester : friend.requested;
+      return {
+        id: user.id,
+        name: user.username,
+        username: user.username,
+        avatar: user.avatar || null,
+        avatar_url: user.avatar_url || null,
+      };
+    });
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -90,21 +85,19 @@ const InviteFriendsModal = ({ isOpen, onOpenChange, groupGoalId, onInvited }) =>
           <p className="text-sm text-center text-muted-foreground mt-1">
             Selecciona a tus amigos para enviarles una invitación a este objetivo.
           </p>
+          <DialogDescription className="sr-only">
+            Formulario para invitar personas a un objetivo financiero grupal.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-foreground">Invitar Amigos</Label>
-            <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-card focus-within:ring-2">
-              <Users className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              <TagsSelector
-                tags={friendsTags}
-                value={selectedFriends}
-                onChange={handleFriendSelection}
-                placeholder="Selecciona los amigos que quieres invitar"
-                className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground"
-              />
-            </div>
+            <MemberSelector
+              members={mappedFriends}
+              selected={selectedFriends}
+              onChange={setSelectedFriends}
+              label="Invitar Amigos"
+            />
           </div>
 
           <div className="flex justify-end gap-3 mt-6 pt-2">
