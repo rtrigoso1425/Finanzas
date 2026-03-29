@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import objectivesService from '@/features/objectives/objectivesService';
+import { objectivesService } from '@/features/objectives/objectivesService';
 
 export const useObjectives = () => {
     const [objectives, setObjectives] = useState([]);

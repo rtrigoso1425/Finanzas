@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import DatePicker from '@/components/ui/date-picker';
-import objectivesService from '@/features/objectives/objectivesService';
+import { objectivesService } from '@/features/objectives/objectivesService';
 import { Target, Calendar, DollarSign } from 'lucide-react';
 
 const CreateObjectiveModal = ({ isOpen, onOpenChange, onCreated }) => {

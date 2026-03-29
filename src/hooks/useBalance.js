@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { economyService } from '../features/economyService/economyService';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
+import { objectivesService } from '@/features/objectives/objectivesService';
 
 export const useBalance = () => {
     const [incomes, setIncomes] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [groupExpenses, setGroupExpenses] = useState([]);
+    const [objectivesExpenses, setObjectivesExpenses] = useState([]);
     const [balance, setBalance] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,10 +23,12 @@ export const useBalance = () => {
                 const incomePromise = economyService.getIncomesData(user.id);
                 const expensesPromise = economyService.getExpensesData(user.id);
                 const groupExpensesPromise = groupObjectivesService.getGroupObjectives(user.id);
-                const [incomesData, expensesData, groupExpensesData] = await Promise.all([
+                const objectivesExpensesPromise = objectivesService.getObjectives(user.id);
+                const [incomesData, expensesData, groupExpensesData, objectivesExpensesData] = await Promise.all([
                     incomePromise,
                     expensesPromise,
-                    groupExpensesPromise
+                    groupExpensesPromise,
+                    objectivesExpensesPromise
                 ]);
 
                 let groupExpensesContributions = [];
@@ -42,6 +46,23 @@ export const useBalance = () => {
                         })
                     });
                 });
+
+                let objectivesExpensesList = [];
+
+                objectivesExpensesData.forEach(objective => {
+                    objective.objective_incomes.forEach(income => {
+                        objectivesExpensesList.push({
+                            id: income.id,
+                            income: income.income,
+                            message: "Contribución a objetivo: " + objective.reason,
+                            created_at: income.created_at,
+                            updated_at: income.created_at,
+                            objective_name: objective.reason
+                        });
+                    });
+                });
+
+                console.log("objectivesExpensesList:", objectivesExpensesList);
 
                 let balanceData = [];
 
@@ -78,12 +99,25 @@ export const useBalance = () => {
                     });
                 });
 
+                objectivesExpensesList.forEach(contribution => {
+                    balanceData.push({
+                        id: `objective-contribution${contribution.id}`,
+                        description: contribution.objective_name,
+                        extra_info: contribution.message,
+                        amount: contribution.income,
+                        type: 'expense',
+                        date: contribution.created_at
+                    });
+                });
+
+
                 balanceData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 if (isMounted) {
                     setIncomes(incomesData || []);
                     setExpenses(expensesData || []);
                     setGroupExpenses(groupExpensesContributions || []);
+                    setObjectivesExpenses(objectivesExpensesList || []);
                     setBalance(balanceData || []);
                     setError(null);
                 }
@@ -104,5 +138,5 @@ export const useBalance = () => {
         };
     }, [user?.id]);
 
-    return { incomes, expenses, groupExpenses, balance, isLoading, error };
+    return { incomes, expenses, groupExpenses, objectivesExpenses, balance, isLoading, error };
 }

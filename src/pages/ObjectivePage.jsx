@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
-import objectivesService from '@/features/objectives/objectivesService';
+import { objectivesService } from '@/features/objectives/objectivesService';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Target } from 'lucide-react';
 import ObjectiveProgressPanel from '@/features/objectivePage/ObjectiveProgressPanel';

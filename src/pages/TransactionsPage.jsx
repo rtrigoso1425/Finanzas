@@ -41,7 +41,6 @@ const Section = ({ title, items }) => {
                 </div>
             </div>
 
-            {/* 4. Lista de Transacciones (casi intacta, solo usando el helper formatCurrency) */}
             <div className="space-y-3">
                 {items.map((n) => {
                     const Icon = n.type === 'income' ? TrendingUp : TrendingDown;

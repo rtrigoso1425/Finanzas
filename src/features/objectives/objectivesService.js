@@ -1,6 +1,6 @@
 import { supabase } from "../supabase/supabaseClient";
 
-const objectivesService = {
+export const objectivesService = {
     async createObjectives(userId, objectiveData) {
         const { data, error } = await supabase
             .from('objectives')
