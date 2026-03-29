@@ -22,12 +22,12 @@ import NotificationsPage from './pages/NotificationsPage';
 import GroupObjectiveRoute from './components/GroupObjectiveRoute';
 import GrupalObjectivePage from './pages/GrupalObjectivePage';
 import ObjectivePage from './pages/ObjectivePage';
+import TransactionsPage from './pages/TransactionsPage';
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Función reutilizable para obtener los datos REALES de la base de datos
     const fetchRealProfile = async (session) => {
       try {
         const { data: profile, error } = await supabase
@@ -37,14 +37,12 @@ function App() {
           .single();
 
         if (profile && !error) {
-          // ✅ ÉXITO: Usamos los datos frescos de la tabla profiles
           dispatch(setUser({
             id: session.user.id,
             email: session.user.email,
-            ...profile // Esto sobreescribe avatar_url con la URL nueva
+            ...profile
           }));
         } else {
-          // Fallback por si acaso falla la DB (usamos metadatos como respaldo)
           dispatch(setUser({
             id: session.user.id,
             email: session.user.email,
@@ -56,7 +54,6 @@ function App() {
       }
     };
 
-    // 1. Carga inicial
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -67,10 +64,8 @@ function App() {
     };
     checkSession();
 
-    // 2. Escuchar cambios (Login, Logout, Cambio de Pestaña)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        // AQUÍ ESTÁ LA MAGIA: Volvemos a pedir el perfil actualizado
         fetchRealProfile(session);
       } else {
         dispatch(setUser(null));
@@ -88,14 +83,11 @@ function App() {
       root.setAttribute('lang', 'es-419');
       root.setAttribute('translate', 'no');
     } else {
-      // Si no está en Español, seguimos manteniendo la página en español latinoamericano,
-      // con instrucción para no traducir las zonas críticas.
       root.setAttribute('lang', 'es-419');
       root.setAttribute('translate', 'no');
     }
   }, []);
 
-  // ... (El resto de tu return con las Routes se queda igual)
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -113,6 +105,7 @@ function App() {
           <Route path="/objectives/:id" element={<ObjectivePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/balance" element={<BalancePage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/grupal-objectives" element={<GrupalObjectivesPage />} />
