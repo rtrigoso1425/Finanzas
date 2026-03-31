@@ -23,7 +23,6 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black p-6 md:p-10">
       
-      {/* --- HEADER Y INPUT DE BÚSQUEDA --- */}
       <div className="max-w-7xl mx-auto mb-10 space-y-6">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
           Explorar Comunidad

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Wallet, Plus } from 'lucide-react';
 
-const ObjectiveIncomeBar = ({ incomes, remainingAmount, isCompleted, onOpenAddModal }) => {
+const ObjectiveIncomeBar = ({ incomes, remainingAmount, isCompleted, isOverdue, onOpenAddModal }) => {
     const formatCurrency = (value) => {
         const amount = Number(value) || 0;
         return new Intl.NumberFormat('es-CO', {
@@ -24,7 +24,7 @@ const ObjectiveIncomeBar = ({ incomes, remainingAmount, isCompleted, onOpenAddMo
                                 {incomes.length}
                             </Badge>
                         </div>
-                        {!isCompleted && (
+                        {!isCompleted && !isOverdue && (
                             <Button 
                                 size="sm" 
                                 className="h-8 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm"
@@ -32,6 +32,11 @@ const ObjectiveIncomeBar = ({ incomes, remainingAmount, isCompleted, onOpenAddMo
                             >
                                 <Plus className="w-4 h-4 mr-1" /> Aporte
                             </Button>
+                        )}
+                        {isOverdue && (
+                            <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
+                                Vencido
+                            </Badge>
                         )}
                     </CardTitle>
                 </CardHeader>

@@ -46,11 +46,13 @@ const GroupObjectiveCard = ({ membership }) => {
   const isOverdue = now > endDate;
 
   return (
-    <Card className="relative p-6 bg-white border-2 border-green-100 shadow-[0_0_20px_rgba(34,197,94,0.1)] hover:shadow-[0_0_25px_rgba(34,197,94,0.3)] hover:border-green-400 transition-all duration-300 rounded-2xl overflow-hidden group">
+    <Card className={`relative p-6 bg-white border-2 shadow-[0_0_20px_rgba(34,197,94,0.1)] hover:shadow-[0_0_25px_rgba(34,197,94,0.3)] transition-all duration-300 rounded-2xl overflow-hidden group ${
+      isOverdue ? 'border-red-200 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.1)] hover:shadow-[0_0_25px_rgba(220,38,38,0.3)]' : 'border-green-100 hover:border-green-400'
+    }`}>
       
       {/* Detalle decorativo futurista superior */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-200 via-green-500 to-green-200 opacity-70" />
-      <div className="absolute top-0 right-4 w-12 h-1 bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+      <div className={`absolute top-0 left-0 w-full h-1 ${isOverdue ? 'bg-gradient-to-r from-red-200 via-red-500 to-red-200' : 'bg-gradient-to-r from-green-200 via-green-500 to-green-200'} opacity-70`} />
+      <div className={`absolute top-0 right-4 w-12 h-1 ${isOverdue ? 'bg-red-500 shadow-[0_0_8px_rgba(220,38,38,0.8)]' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]'}`} />
 
       <CardHeader className="pb-4 pt-2">
         <div className="flex justify-between items-start">
@@ -65,8 +67,10 @@ const GroupObjectiveCard = ({ membership }) => {
             )}
           </div>
           {/* Indicador de estado estilo badge */}
-          <div className="px-3 py-1 bg-green-50 border border-green-200 text-green-600 text-xs font-bold uppercase tracking-widest rounded-full">
-            {isCompleted ? 'Completado' : 'En Curso'}
+          <div className={`px-3 py-1 border text-xs font-bold uppercase tracking-widest rounded-full ${
+            isOverdue ? 'bg-red-50 border-red-200 text-red-600' : isCompleted ? 'bg-green-50 border-green-200 text-green-600' : 'bg-slate-50 border-slate-200 text-slate-600'
+          }`}>
+            {isOverdue ? 'Vencido' : isCompleted ? 'Completado' : 'En Curso'}
           </div>
         </div>
       </CardHeader>

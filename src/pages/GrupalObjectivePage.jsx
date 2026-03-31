@@ -61,6 +61,7 @@ const GrupalObjectivePage = () => {
 
   const remainingAmount = Number(groupObjective.remaining_amount ?? 0);
   const isCompleted = remainingAmount <= 0;
+  const isOverdue = new Date(groupObjective.end_date) < new Date();
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 bg-slate-50 min-h-screen">
@@ -109,7 +110,7 @@ const GrupalObjectivePage = () => {
               </div>
             )}
           </div>
-          {myMembership && !isCompleted && (
+          {myMembership && !isCompleted && !isOverdue && (
             <Button 
               className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-200"
               onClick={() => setContributionModalOpen(true)}
@@ -117,6 +118,11 @@ const GrupalObjectivePage = () => {
               <Wallet className="w-4 h-4 mr-2" />
               Nuevo Aporte
             </Button>
+          )}
+          {isOverdue && (
+            <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
+              Vencido
+            </Badge>
           )}
         </div>
       </header>
@@ -146,6 +152,7 @@ const GrupalObjectivePage = () => {
           groupObjective={groupObjective}
           fetchGroupObjective={fetchGroupObjective}
           isOwner={isOwner}
+          isOverdue={isOverdue}
         />
       </div>
 
@@ -161,6 +168,7 @@ const GrupalObjectivePage = () => {
         isOpen={contributionModalOpen}
         onOpenChange={setContributionModalOpen}
         maxAmount={remainingAmount}
+        disabled={isOverdue}
         onAdd={async ({ amount, message }) => {
           if (!myMembership) return;
           await groupIncomesService.addContribution(myMembership.id, amount, message);

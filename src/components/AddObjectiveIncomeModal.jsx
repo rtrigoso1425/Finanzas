@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Wallet } from 'lucide-react';
 
-const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd }) => {
+const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd, disabled = false }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -43,11 +43,15 @@ const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd }) => 
             Nuevo Aporte
           </DialogTitle>
           <DialogDescription className="text-center">
-            Agrega dinero a tu objetivo. Faltan ${maxAmount} para la meta.
+            {disabled ? (
+              <span className="text-red-600">Este objetivo ha excedido su fecha de vencimiento y no puedes agregar aportes.</span>
+            ) : (
+              <span>Agrega dinero a tu objetivo. Faltan ${maxAmount} para la meta.</span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2" disabled={disabled}>
           <div className="space-y-2">
             <Label className="text-sm font-medium">Monto</Label>
             <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-slate-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
@@ -60,16 +64,17 @@ const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd }) => 
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Ej. 50000"
                 required
+                disabled={disabled}
                 className="w-full border-0 bg-transparent focus-visible:ring-0 shadow-none"
               />
             </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading || disabled}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading || !amount} className="bg-emerald-500 hover:bg-emerald-600">
+            <Button type="submit" disabled={loading || !amount || disabled} className="bg-emerald-500 hover:bg-emerald-600">
               {loading ? 'Guardando...' : 'Agregar Aporte'}
             </Button>
           </div>

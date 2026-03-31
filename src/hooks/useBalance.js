@@ -62,8 +62,6 @@ export const useBalance = () => {
                     });
                 });
 
-                console.log("objectivesExpensesList:", objectivesExpensesList);
-
                 let balanceData = [];
 
                 incomesData.forEach(income => {

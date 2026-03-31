@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Wallet, Crown } from 'lucide-react';
 
-const IncomeBar = ({ incomes, groupObjective, fetchGroupObjective, isOwner }) => {
+const IncomeBar = ({ incomes, groupObjective, fetchGroupObjective, isOwner, isOverdue }) => {
     const [verifyingIncomeId, setVerifyingIncomeId] = useState(null);
 
     const formatCurrency = (value) => {
@@ -35,9 +35,16 @@ const IncomeBar = ({ incomes, groupObjective, fetchGroupObjective, isOwner }) =>
                 <CardHeader className="border-b border-slate-50 py-4 px-5">
                     <CardTitle className="text-base font-semibold text-slate-800 flex items-center justify-between">
                         Registro de Aportes
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 font-normal">
-                            {incomes.length} Movimientos
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="bg-slate-100 text-slate-600 font-normal">
+                                {incomes.length} Movimientos
+                            </Badge>
+                            {isOverdue && (
+                                <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
+                                    Vencido
+                                </Badge>
+                            )}
+                        </div>
                     </CardTitle>
                 </CardHeader>
             

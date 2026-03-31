@@ -24,6 +24,9 @@ const GrupalObjectivesPage = () => {
   const activeObjectives = myObjectives.filter(
     (obj) => new Date(obj.group_objectives.end_date) > now
   );
+  const overdueObjectives = myObjectives.filter(
+    (obj) => new Date(obj.group_objectives.end_date) <= now
+  );
   const canCreate = activeObjectives.length < 5;
 
   if (loading) {
@@ -57,9 +60,10 @@ const GrupalObjectivesPage = () => {
 
       {/* pestañas */}
       <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="mine">Mis objetivos</TabsTrigger>
-          <TabsTrigger value="invites">Invitaciones</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-3">
+          <TabsTrigger value="mine">Mis objetivos ({activeObjectives.length})</TabsTrigger>
+          <TabsTrigger value="overdue">Vencidos ({overdueObjectives.length})</TabsTrigger>
+          <TabsTrigger value="invites">Invitaciones ({invitations.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="mine">
@@ -70,6 +74,23 @@ const GrupalObjectivesPage = () => {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {activeObjectives.map((obj) => (
+                <GroupObjectiveCard
+                  key={obj.group_objectives.id}
+                  membership={obj}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="overdue">
+          {overdueObjectives.length === 0 ? (
+            <div className="py-12 text-center text-muted-foreground">
+              No tienes objetivos grupales vencidos.
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {overdueObjectives.map((obj) => (
                 <GroupObjectiveCard
                   key={obj.group_objectives.id}
                   membership={obj}

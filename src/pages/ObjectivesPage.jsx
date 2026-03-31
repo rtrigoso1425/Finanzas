@@ -11,8 +11,11 @@ const ObjectivesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tab, setTab] = useState('active');
 
-  const activeObjectives = objectives.filter(obj => obj.remaining_amount > 0);
-  const completedObjectives = objectives.filter(obj => obj.remaining_amount <= 0);
+  const isOverdue = (endDate) => new Date(endDate) < new Date();
+  
+  const activeObjectives = objectives.filter(obj => obj.remaining_amount > 0 && !isOverdue(obj.end_date));
+  const completedObjectives = objectives.filter(obj => obj.remaining_amount <= 0 && !isOverdue(obj.end_date));
+  const overdueObjectives = objectives.filter(obj => isOverdue(obj.end_date));
 
   if (loading) {
     return (
@@ -69,12 +72,15 @@ const ObjectivesPage = () => {
         </div>
       ) : (
         <Tabs value={tab} onValueChange={setTab} className="w-full mt-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-8 bg-slate-100/50 p-1">
-            <TabsTrigger value="active" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+          <TabsList className="grid w-full max-w-md grid-cols-3 mb-8 bg-slate-100/50 p-1">
+            <TabsTrigger value="active" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
               En Curso ({activeObjectives.length})
             </TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <TabsTrigger value="completed" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
               Completados ({completedObjectives.length})
+            </TabsTrigger>
+            <TabsTrigger value="overdue" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+              Vencidos ({overdueObjectives.length})
             </TabsTrigger>
           </TabsList>
 
@@ -100,6 +106,20 @@ const ObjectivesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {completedObjectives.map((objective) => (
+                  <ObjectiveCard key={objective.id} objective={objective} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="overdue">
+            {overdueObjectives.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground border rounded-xl bg-slate-50">
+                No tienes objetivos vencidos.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {overdueObjectives.map((objective) => (
                   <ObjectiveCard key={objective.id} objective={objective} />
                 ))}
               </div>

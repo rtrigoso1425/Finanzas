@@ -29,10 +29,12 @@ const ObjectiveCard = ({ objective }) => {
   const isOverdue = now > endDate && !isCompleted;
 
   return (
-    <Card className="relative p-6 bg-white border-2 border-emerald-100 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:border-emerald-400 transition-all duration-300 rounded-2xl overflow-hidden group">
+    <Card className={`relative p-6 bg-white border-2 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_25px_rgba(16,185,129,0.3)] transition-all duration-300 rounded-2xl overflow-hidden group ${
+      isOverdue ? 'border-red-200 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.1)] hover:shadow-[0_0_25px_rgba(220,38,38,0.3)]' : 'border-emerald-100 hover:border-emerald-400'
+    }`}>
       
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-200 via-emerald-500 to-emerald-200 opacity-70" />
-      <div className="absolute top-0 right-4 w-12 h-1 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+      <div className={`absolute top-0 left-0 w-full h-1 ${isOverdue ? 'bg-gradient-to-r from-red-200 via-red-500 to-red-200' : 'bg-gradient-to-r from-emerald-200 via-emerald-500 to-emerald-200'} opacity-70`} />
+      <div className={`absolute top-0 right-4 w-12 h-1 ${isOverdue ? 'bg-red-500 shadow-[0_0_8px_rgba(220,38,38,0.8)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]'}`} />
 
       <CardHeader className="pb-4 pt-2">
         <div className="flex justify-between items-start gap-4">
@@ -41,12 +43,11 @@ const ObjectiveCard = ({ objective }) => {
               {objective.reason}
             </CardTitle>
           </div>
-          <div className={`shrink-0 px-3 py-1 border text-xs font-bold uppercase tracking-widest rounded-full ${isCompleted ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
-            {isCompleted ? 'Completado' : 'En Curso'}
+          <div className={`shrink-0 px-3 py-1 border text-xs font-bold uppercase tracking-widest rounded-full ${
+            isOverdue ? 'bg-red-50 border-red-200 text-red-600' : isCompleted ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-slate-50 border-slate-200 text-slate-600'
+          }`}>
+            {isOverdue ? 'Vencido' : isCompleted ? 'Completado' : 'En Curso'}
           </div>
-          <CardDescription className="text-sm text-slate-500 mt-1 line-clamp-3">
-            {objective.description || 'Sin descripción'}
-          </CardDescription>
         </div>
       </CardHeader>
 

@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import { objectivesService } from '@/features/objectives/objectivesService';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { CheckCircle, Target } from 'lucide-react';
 import ObjectiveProgressPanel from '@/features/objectivePage/ObjectiveProgressPanel';
 import ObjectiveIncomeBar from '@/features/objectivePage/ObjectiveIncomeBar';
@@ -50,6 +51,7 @@ const ObjectivePage = () => {
 
   const remainingAmount = Number(objective.remaining_amount ?? 0);
   const isCompleted = remainingAmount <= 0;
+  const isOverdue = new Date(objective.end_date) < new Date();
   const incomes = objective.objective_incomes || [];
 
   return (
@@ -88,6 +90,7 @@ const ObjectivePage = () => {
           incomes={incomes} 
           remainingAmount={remainingAmount}
           isCompleted={isCompleted}
+          isOverdue={isOverdue}
           onOpenAddModal={() => setIncomeModalOpen(true)}
         />
       </div>
@@ -96,6 +99,7 @@ const ObjectivePage = () => {
         isOpen={incomeModalOpen}
         onOpenChange={setIncomeModalOpen}
         maxAmount={remainingAmount}
+        disabled={isOverdue}
         onAdd={async ({ amount, message }) => {
           await objectivesService.addIncome(objective.id, amount, message);
           await fetchObjective();

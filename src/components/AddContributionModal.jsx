@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
+const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount, disabled = false }) => {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,11 @@ const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
             Registrar aporte
           </DialogTitle>
           <p className="text-sm text-center text-muted-foreground mt-1">
-            Ingresa el monto y, si quieres, un comentario opcional.
+            {disabled ? (
+              <span className="text-red-600">Este objetivo ha excedido su fecha de vencimiento y no puedes agregar aportes.</span>
+            ) : (
+              <span>Ingresa el monto y, si quieres, un comentario opcional.</span>
+            )}
           </p>
           <DialogDescription className="sr-only">
             Formulario para registrar un nuevo aporte financiero.
@@ -63,6 +67,7 @@ const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
               step="0.01"
               placeholder="Ej. 100000"
               required
+              disabled={disabled}
               className="bg-card"
             />
           </div>
@@ -74,6 +79,7 @@ const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
               onChange={(e) => setNote(e.target.value)}
               placeholder="¿Para qué se usa este aporte?"
               rows={3}
+              disabled={disabled}
               className="bg-card"
             />
           </div>
@@ -83,14 +89,14 @@ const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount }) => {
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={loading}
+              disabled={loading || disabled}
               className="w-full md:w-auto rounded-lg"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              disabled={loading || !amount}
+              disabled={loading || !amount || disabled}
               className="w-full rounded-lg font-medium shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Guardando...' : 'Agregar aporte'}
