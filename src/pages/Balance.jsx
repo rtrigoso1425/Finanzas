@@ -24,16 +24,16 @@ const BalancePage = () => {
 
   const balance = {
     totalIncome: 
-      incomes.reduce((sum, income) => new Date(income.created_at).getUTCMonth() === currentMonth && new Date(income.created_at).getUTCFullYear() === currentYear ? sum + income.income : sum, 0),
+      incomes.reduce((sum, income) => new Date(income.created_at).getMonth() === currentMonth && new Date(income.created_at).getFullYear() === currentYear ? sum + income.income : sum, 0),
     totalExpenses: 
-      expenses.reduce((sum, expense) => new Date(expense.created_at).getUTCMonth() === currentMonth && new Date(expense.created_at).getUTCFullYear() === currentYear ? sum + expense.expense : sum, 0) 
-      + groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0)
-      + objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0),
+      expenses.reduce((sum, expense) => new Date(expense.created_at).getMonth() === currentMonth && new Date(expense.created_at).getFullYear() === currentYear ? sum + expense.expense : sum, 0) 
+      + groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0)
+      + objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0),
     netBalance: 
-      incomes.reduce((sum, income) => new Date(income.created_at).getUTCMonth() === currentMonth && new Date(income.created_at).getUTCFullYear() === currentYear ? sum + income.income : sum, 0) 
-      - expenses.reduce((sum, expense) => new Date(expense.created_at).getUTCMonth() === currentMonth && new Date(expense.created_at).getUTCFullYear() === currentYear ? sum + expense.expense : sum, 0) 
-      - groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0)
-      - objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0)
+      incomes.reduce((sum, income) => new Date(income.created_at).getMonth() === currentMonth && new Date(income.created_at).getFullYear() === currentYear ? sum + income.income : sum, 0) 
+      - expenses.reduce((sum, expense) => new Date(expense.created_at).getMonth() === currentMonth && new Date(expense.created_at).getFullYear() === currentYear ? sum + expense.expense : sum, 0) 
+      - groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0)
+      - objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0)
   };
 
   const recentTransactions = transactions.slice(0, 5);

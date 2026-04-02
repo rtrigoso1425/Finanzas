@@ -89,7 +89,7 @@ const TransactionsPage = () => {
         balance.forEach((transaction) => {
             if (
                 groupMonth[0]? 
-                    new Date(transaction.date).getUTCMonth() === new Date(groupMonth[groupMonth.length - 1].date).getUTCMonth() && new Date(transaction.date).getUTCFullYear() === new Date(groupMonth[groupMonth.length - 1].date).getUTCFullYear() 
+                    new Date(transaction.date).getMonth() === new Date(groupMonth[groupMonth.length - 1].date).getMonth() && new Date(transaction.date).getFullYear() === new Date(groupMonth[groupMonth.length - 1].date).getFullYear() 
                     : true) {
                 groupMonth.push(transaction);
             } else {

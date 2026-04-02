@@ -1,6 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { economyService } from '@/features/economyService/economyService';
+import { useMemo } from 'react';
 import { useObjectives } from '@/hooks/useObjectives';
 import { useGroupObjectives } from '@/hooks/useGroupObjectives';
 import { useBalance } from '@/hooks/useBalance';
@@ -12,12 +10,31 @@ import GroupObjectiveWidget from '@/features/dashboardPage/GroupObjectiveWidget'
 import TransactionsByTypeWidget from '@/features/dashboardPage/TransactionsByTypeWidget';
 
 const DashboardPage = () => {
-  const { user } = useSelector((state) => state.auth);
   
   const {incomes, expenses, groupExpenses, objectivesExpenses, isLoading} = useBalance();
 
   const { objectives: personalObjs } = useObjectives();
   const { myObjectives: groupObjs } = useGroupObjectives();
+
+  const activeGroupObjetives = useMemo(() => {
+    let active = []
+    groupObjs.forEach(g => {
+      if (g.group_objectives.end_date && new Date(g.group_objectives.end_date) > new Date()) {
+        active.push(g);
+      }
+    });
+    return active;
+  }, [groupObjs]);
+
+  const activeObjetives = useMemo(() => {
+    let active = []
+    personalObjs.forEach(g => {
+      if (g.end_date && new Date(g.end_date) > new Date()) {
+        active.push(g);
+      }
+    });
+    return active;
+  }, [personalObjs]);
 
   const globalBalance = useMemo(() => {
 
@@ -26,11 +43,11 @@ const DashboardPage = () => {
     const currentYear = Today.getFullYear();
 
     const totalIncome = 
-      incomes.reduce((sum, income) => new Date(income.created_at).getUTCMonth() === currentMonth && new Date(income.created_at).getUTCFullYear() === currentYear ? sum + income.income : sum, 0);
+      incomes.reduce((sum, income) => new Date(income.created_at).getMonth() === currentMonth && new Date(income.created_at).getFullYear() === currentYear ? sum + income.income : sum, 0);
     const totalExpense = 
-      expenses.reduce((sum, expense) => new Date(expense.created_at).getUTCMonth() === currentMonth && new Date(expense.created_at).getUTCFullYear() === currentYear ? sum + expense.expense : sum, 0) 
-      + groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0)
-      + objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getUTCMonth() === currentMonth && new Date(contribution.created_at).getUTCFullYear() === currentYear ? sum + contribution.income : sum, 0);
+      expenses.reduce((sum, expense) => new Date(expense.created_at).getMonth() === currentMonth && new Date(expense.created_at).getFullYear() === currentYear ? sum + expense.expense : sum, 0) 
+      + groupExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0)
+      + objectivesExpenses.reduce((sum, contribution) => new Date(contribution.created_at).getMonth() === currentMonth && new Date(contribution.created_at).getFullYear() === currentYear ? sum + contribution.income : sum, 0);
     return totalIncome - totalExpense;
   }, [incomes, expenses, groupExpenses, objectivesExpenses, isLoading]);
 
@@ -67,7 +84,7 @@ const DashboardPage = () => {
         </div>
         
         <div className="col-span-12 lg:col-span-3 h-[320px]">
-          <ObjectivesSummary personalObjs={personalObjs} groupObjs={groupObjs} />
+          <ObjectivesSummary personalObjs={activeObjetives} groupObjs={activeGroupObjetives} />
         </div>
         
         <div className="col-span-12 lg:col-span-3 h-[320px]">
@@ -75,7 +92,7 @@ const DashboardPage = () => {
         </div>
 
         <div className="col-span-12 lg:col-span-6 min-h-[300px]">
-          <GroupObjectiveWidget groupObjs={groupObjs} />
+          <GroupObjectiveWidget groupObjs={activeGroupObjetives} />
         </div>
         
         <div className="col-span-12 lg:col-span-6 min-h-[300px]">
