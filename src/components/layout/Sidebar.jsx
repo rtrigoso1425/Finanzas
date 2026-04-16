@@ -99,8 +99,8 @@ export function Sidebar({ isCollapsed, onToggle }) {
           {title}
         </div>
         <div className={cn("flex flex-col transition-opacity", isCollapsed && "opacity-0 hidden")}>
-          <span className="font-bold text-lg tracking-tight whitespace-nowrap">Finanzas</span>
-          <span className="text-xs text-muted-foreground whitespace-nowrap truncate">{user?.institution?.name}</span>
+          <span className="font-bold text-lg tracking-tight whitespace-nowrap">SmartGoal</span>
+          <span className="text-xs text-muted-foreground whitespace-nowrap truncate">{user?.subscription}</span>
         </div>
       </Link>
     </div>
@@ -123,7 +123,7 @@ export function Sidebar({ isCollapsed, onToggle }) {
   // Única vista con los links solicitados
   return renderSidebar(
     <>
-      {renderHeader("/", "F")}
+      {renderHeader("/", "SG")}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-4 space-y-4">
         <SidebarLink
           icon={LayoutDashboard}

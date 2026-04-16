@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 const COLORS = ['#a855f7', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#64748b'];
 
 const TransactionsByTypeWidget = ({ incomes, expenses }) => {
   const [view, setView] = useState('gastos');
+  const Symbol = CurrencySymbol();
 
   const data = useMemo(() => {
     const source = view === 'gastos' ? expenses : incomes;
@@ -48,7 +50,7 @@ const TransactionsByTypeWidget = ({ incomes, expenses }) => {
               <span className="text-sm text-black">{item.name}</span>
             </div>
             <span className="text-sm font-bold font-mono">
-              {view === 'gastos' ? '-' : '+'}${item.value.toLocaleString()}
+              {view === 'gastos' ? '-' : '+'}{Symbol}{item.value.toLocaleString()}
             </span>
           </div>
         ))}

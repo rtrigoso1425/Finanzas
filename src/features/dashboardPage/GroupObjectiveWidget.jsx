@@ -3,11 +3,13 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 const COLORS = ['#a855f7', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#64748b'];
 
 const GroupObjectiveWidget = ({ groupObjs }) => {
   const [selectedId, setSelectedId] = useState(groupObjs[0]?.group_goal_id || '');
+  const Symbol = CurrencySymbol();
 
   const objective = useMemo(() => {
     return groupObjs.find(g => g.group_goal_id === selectedId)?.group_objectives;
@@ -64,7 +66,7 @@ const GroupObjectiveWidget = ({ groupObjs }) => {
                   <span className="text-sm text-black">{member.name}</span>
                 </div>
                 <span className="text-sm font-bold" style={{ color: COLORS[idx % COLORS.length] }}>
-                  ${member.value}
+                  {Symbol}{member.value}
                 </span>
               </div>
             ))}

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useObjectives } from '@/hooks/useObjectives';
 import { useGroupObjectives } from '@/hooks/useGroupObjectives';
 import { useBalance } from '@/hooks/useBalance';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 import IncomeExpenseChart from '@/features/dashboardPage/IncomeExpenseChart';
 import ObjectivesSummary from '@/features/dashboardPage/ObjectivesSummary';
@@ -15,6 +16,7 @@ const DashboardPage = () => {
 
   const { objectives: personalObjs } = useObjectives();
   const { myObjectives: groupObjs } = useGroupObjectives();
+  const Symbol = CurrencySymbol();
 
   const activeGroupObjetives = useMemo(() => {
     let active = []
@@ -68,7 +70,7 @@ const DashboardPage = () => {
           <div>
             <p className="text-xs text-black uppercase tracking-wider font-semibold">Balance Total</p>
             <p className={`text-2xl font-bold font-mono ${globalBalance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {globalBalance >= 0 ? '+' : '-'}${Math.abs(globalBalance).toLocaleString()}
+              {globalBalance >= 0 ? '+' : '-'}{Symbol}{Math.abs(globalBalance).toLocaleString()}
             </p>
           </div>
           <div className={`px-2 py-1 rounded-md text-xs font-bold ${globalBalance >= 0 ? 'bg-emerald-400 text-white' : 'bg-red-400 text-red-white'}`}>

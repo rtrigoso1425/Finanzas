@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 const CircularProgress = ({ value, label, sublabel, color = "#10b981", sublabelColor = "text-slate-500" }) => {
     const radius = 60; 
@@ -24,6 +25,7 @@ const CircularProgress = ({ value, label, sublabel, color = "#10b981", sublabelC
 const ObjectiveProgressPanel = ({ objective }) => {
     const remainingAmount = Number(objective.remaining_amount ?? 0);
     const totalAmount = Number(objective.total_amount ?? 0);
+    const Symbol = CurrencySymbol();
 
     const formatCurrency = (value) => {
         const amount = Number(value) || 0;
@@ -71,12 +73,12 @@ const ObjectiveProgressPanel = ({ objective }) => {
                     <div className="flex flex-col items-center gap-4">
                         <CircularProgress 
                             value={progress} 
-                            label={progress === 100 ? "100%" : `${formatCurrency(remainingAmount)}`} 
+                            label={progress === 100 ? "100%" : `${Symbol}${remainingAmount.toFixed(2)}`} 
                             sublabel={progress === 100 ? "ALCANZADO" : "FALTANTE"} 
                             color="#10b981"
                         />
                         <Badge variant="secondary" className="text-xs font-medium text-slate-600 bg-slate-100">
-                            Meta total: {formatCurrency(totalAmount)}
+                            Meta total: {Symbol}{totalAmount.toFixed(2)}
                         </Badge>
                     </div>
                 </div>

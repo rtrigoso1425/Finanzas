@@ -8,8 +8,11 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Target } from 'lucide-react';
+import { CurrencySymbol } from '@/utils/currencySimbol';
+import { symbol } from 'framer-motion/client';
 
 const ObjectiveCard = ({ objective }) => {
+  const Symbol = CurrencySymbol();
   const createdAt = objective.created_at ? new Date(objective.created_at) : new Date();
   const endDate = new Date(objective.end_date);
   const now = new Date();
@@ -79,7 +82,7 @@ const ObjectiveCard = ({ objective }) => {
             </div>
             <Progress value={moneyProgress} className="h-2 bg-slate-200 [&>div]:bg-emerald-500" />
             <span className="font-mono block text-emerald-600">
-              $ {remainingAmount.toFixed(2)}
+              {Symbol}{remainingAmount.toFixed(2)}
             </span>
           </div>
 

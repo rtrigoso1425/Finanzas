@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 const ObjectivesSummary = ({ personalObjs, groupObjs }) => {
+  const Symbol = CurrencySymbol();
   const sortedObjectives = useMemo(() => {
     const combined = [
       ...personalObjs.map(o => ({ id: `p-${o.id}`, name: o.reason, date: new Date(o.end_date), type: 'Personal', remaining: o.remaining_amount })),
@@ -27,7 +29,7 @@ const ObjectivesSummary = ({ personalObjs, groupObjs }) => {
                 <span className="text-xs text-slate-400">{obj.date.toLocaleDateString()}</span>
               </div>
             </div>
-            <span className="text-sm font-bold text-emerald-400">${obj.remaining}</span>
+            <span className="text-sm font-bold text-emerald-400">{Symbol}{obj.remaining}</span>
           </div>
         ))}
       </CardContent>

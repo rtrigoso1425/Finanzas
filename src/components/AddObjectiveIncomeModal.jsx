@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Wallet } from 'lucide-react';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 
 const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd, disabled = false }) => {
   const [amount, setAmount] = useState('');
@@ -55,14 +56,15 @@ const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd, disab
           <div className="space-y-2">
             <Label className="text-sm font-medium">Monto</Label>
             <div className="flex items-center gap-2 border rounded-lg px-3 py-2.5 bg-slate-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
-              <span className="text-slate-500 font-medium">$</span>
+              <span className="text-slate-500 font-medium">{CurrencySymbol()}</span>
               <Input
                 type="number"
                 min="1"
                 max={maxAmount}
+                step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Ej. 50000"
+                placeholder={`Ej. ${CurrencySymbol()}50000`}
                 required
                 disabled={disabled}
                 className="w-full border-0 bg-transparent focus-visible:ring-0 shadow-none"

@@ -88,7 +88,7 @@ const RegisterPage = () => {
                     <CardHeader>
                         <div>
                             <Link to="/" style={{ textDecoration: "none", color: "Black", fontSize: "1.5rem" }}>
-                                <Text_03 text="Finanzas"/>
+                                <Text_03 text="SmartGoal"/>
                             </Link>
                         </div>
                         <CardTitle className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100">

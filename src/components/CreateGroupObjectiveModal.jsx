@@ -8,6 +8,7 @@ import { Target, FileText, Calendar, DollarSign } from 'lucide-react';
 import { friendshipService } from '@/features/friendship/friendshipService';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 import {
   Dialog,
   DialogContent,
@@ -137,7 +138,7 @@ const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
                 type="number"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
-                placeholder="Ej. $1000"
+                placeholder={`Ej. ${CurrencySymbol()}1000`}
                 min ="1"
                 required
                 className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground bg-transparent"

@@ -2,6 +2,7 @@ import { friendshipService } from "@/features/friendship/friendshipService";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { FriendCard } from "@/components/friend-card";
+import { testCurrencyConversion } from "@/features/currency/testeo";
 
 const FriendsPage = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -30,6 +31,7 @@ const FriendsPage = () => {
     const name = (person?.username || person?.email || "").toLowerCase();
     return name.includes(query.toLowerCase());
   });
+  testCurrencyConversion(); // Llamada de prueba para verificar la conversión de moneda
 
   return (
     <div className="container mx-auto p-4">

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AddIncomeModal from '@/components/AddIncomeModal';
 import AddExpenseModal from '@/components/AddExpenseModal';
 import { useBalance } from '@/hooks/useBalance';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 import {
   Card,
   CardHeader,
@@ -11,8 +12,10 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { symbol } from 'framer-motion/client';
 
 const BalancePage = () => {
+  const Symbol = CurrencySymbol();
   const navigate = useNavigate();
   const [IncomemodalOpen, setIncomeModalOpen] = useState(false);
   const [ExpenseModalOpen, setExpenseModalOpen] = useState(false);
@@ -93,7 +96,7 @@ const BalancePage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
-                  ${balance.totalIncome.toFixed(2)}
+                  {Symbol}{balance.totalIncome.toFixed(2)}
                 </p>
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-emerald-700 dark:text-emerald-300">
@@ -128,7 +131,7 @@ const BalancePage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-red-900 dark:text-red-100">
-                  ${balance.totalExpenses.toFixed(2)}
+                  {Symbol}{balance.totalExpenses.toFixed(2)}
                 </p>
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-red-700 dark:text-red-300">
@@ -158,7 +161,7 @@ const BalancePage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
-                  ${balance.netBalance.toFixed(2)}
+                  {Symbol}{balance.netBalance.toFixed(2)}
                 </p>
                 <div className="flex items-center mt-4 h-8"> 
                   <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
@@ -221,7 +224,7 @@ const BalancePage = () => {
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                             <span className={transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}>
-                              {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                              {transaction.type === 'income' ? '+' : '-'}{Symbol}{transaction.amount.toFixed(2)}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">

@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { CurrencySymbol } from '@/utils/currencySimbol';
 import {
   Dialog,
   DialogContent,
@@ -110,7 +111,7 @@ const CreateObjectiveModal = ({ isOpen, onOpenChange, onCreated }) => {
                 min="1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Ej. $ 1000"
+                placeholder={`Ej. ${CurrencySymbol()}1000`}
                 required
                 className="w-full border-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-foreground bg-transparent"
               />
