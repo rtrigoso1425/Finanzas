@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
+//fafafa
+
 const glowColorMap = {
   blue: { base: 220, spread: 200 },
   purple: { base: 280, spread: 300 },

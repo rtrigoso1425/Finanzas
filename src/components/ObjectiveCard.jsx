@@ -11,6 +11,8 @@ import { Target } from 'lucide-react';
 import { CurrencySymbol } from '@/utils/currencySimbol';
 import { symbol } from 'framer-motion/client';
 
+//ccc
+
 const ObjectiveCard = ({ objective }) => {
   const Symbol = CurrencySymbol();
   const createdAt = objective.created_at ? new Date(objective.created_at) : new Date();
