@@ -8,6 +8,9 @@ import { supabase } from "@/features/supabase/supabaseClient";
 import { setUser } from "@/features/auth/authSlice";
 import { AvatarUploader } from "@/components/avatar-uploader";
 
+
+//Ajustes página de configuración
+
 const SettingsPage = () => {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();

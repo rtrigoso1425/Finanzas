@@ -5,6 +5,9 @@ import { useFriendship } from '@/hooks/useFriendship';
 import { fetchUserByUsername, clearSearchedUser } from '../features/user/userSlice';
 import { Loader2, UserPlus, Clock, Check, X } from "lucide-react";
 
+//Ajustes página de Perfil
+
+
 const ProfilePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();

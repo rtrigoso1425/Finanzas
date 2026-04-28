@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { FriendCard } from "@/components/friend-card";
 import { testCurrencyConversion } from "@/features/currency/testeo";
 
+
+//Ajuste la página de Friends
+
 const FriendsPage = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const [ friends, setFriends ] = useState([]);
