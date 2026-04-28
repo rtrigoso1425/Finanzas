@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React from "react";
 
-// SidebarLink mejorado para mostrar iconos y labels según colapsado
+// SidebarLink mejorado para mostrar iconos y labels 
 function SidebarLink({ icon: Icon, label, to, active, isCollapsed, isSubItem = false }) {
   const content = (
     <Link

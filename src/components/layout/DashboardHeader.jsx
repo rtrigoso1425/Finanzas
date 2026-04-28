@@ -3,6 +3,8 @@ import { UserNav } from "@/components/layout/UserNav";
 import { NotificationsNav } from "@/components/layout/NotificationsNav";
 import { useSelector } from "react-redux";
 
+//aaa
+
 export function DashboardHeader() { // isCollapsed y onToggle ELIMINADOS
   const { user } = useSelector((state) => state.auth);
   return (

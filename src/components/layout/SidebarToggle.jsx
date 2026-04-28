@@ -2,6 +2,8 @@ import { cn } from "@/lib/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+//Ajustes
+
 export function SidebarToggle({ isCollapsed, onToggle }) {
   return (
     <Button 

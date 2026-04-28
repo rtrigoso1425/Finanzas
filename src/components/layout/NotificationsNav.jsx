@@ -25,7 +25,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { friendshipService } from '@/features/friendship/friendshipService';
 import { removeNotification, fetchNotifications } from '@/features/notifications/notificationsSlice';
 
-// Función auxiliar para iniciales
+// Función
+
+
 const getInitials = (name) => {
     if (!name) return "?";
     const names = name.split(' ');

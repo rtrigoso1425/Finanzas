@@ -19,7 +19,9 @@ import { authService } from "@/features/auth/authService"
 import { Link } from "react-router-dom"
 import { LogOut, Settings, User } from "lucide-react"
 
-// Función para obtener iniciales
+
+
+// Función para obtener iniciale
 const getInitials = (name) => {
   if (!name) return "?";
   const names = name.split(' ');
