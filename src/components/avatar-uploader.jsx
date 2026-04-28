@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { setUser } from '@/features/auth/authSlice';
 import { uploadProfileImageFeature } from '@/features/user/updateUserService';
 
+//Componente 7
+
 export function AvatarUploader({
     children,
     onUpload,

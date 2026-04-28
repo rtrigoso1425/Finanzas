@@ -10,6 +10,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 
 
+//c10
+
 const GroupObjectiveCard = ({ membership }) => {
   const goal = membership.group_objectives;
   const allMembers = goal.otros_miembros || [];

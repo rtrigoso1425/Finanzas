@@ -15,6 +15,8 @@ import DatePicker from '@/components/ui/date-picker';
 import { objectivesService } from '@/features/objectives/objectivesService';
 import { Target, Calendar, DollarSign } from 'lucide-react';
 
+c9
+
 const CreateObjectiveModal = ({ isOpen, onOpenChange, onCreated }) => {
   const { user } = useSelector((state) => state.auth);
   const [title, setTitle] = useState('');

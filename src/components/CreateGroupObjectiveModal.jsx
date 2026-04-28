@@ -19,6 +19,8 @@ import {
 import DatePicker from './ui/date-picker';
 import { MemberSelector } from '@/components/member-selector';
 
+//C8
+
 const CreateGroupObjectiveModal = ({ isOpen, onOpenChange }) => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const [objectiveName, setObjectiveName] = useState('');
