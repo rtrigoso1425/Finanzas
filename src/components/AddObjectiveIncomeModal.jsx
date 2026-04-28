@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Wallet } from 'lucide-react';
 import { CurrencySymbol } from '@/utils/currencySimbol';
 
+//Componente 4
+
 const AddObjectiveIncomeModal = ({ isOpen, onOpenChange, maxAmount, onAdd, disabled = false }) => {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);

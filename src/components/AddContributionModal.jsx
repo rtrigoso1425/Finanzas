@@ -5,6 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
+//Componente 1
+
+
 const AddContributionModal = ({ isOpen, onOpenChange, onAdd, maxAmount, disabled = false }) => {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');

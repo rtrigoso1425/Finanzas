@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+
+//Componente 2
+
 const AddExpenseModal = ({ isOpen, onOpenChange }) => {
     const { user: currentUser } = useSelector((state) => state.auth);
     const [amount, setAmount] = useState('');

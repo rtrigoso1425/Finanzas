@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+
+//Componente 3
+
 const AddIncomeModal = ({ isOpen, onOpenChange }) => {
     const { user: currentUser } = useSelector((state) => state.auth);
     const [amount, setAmount] = useState('');
