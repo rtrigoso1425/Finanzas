@@ -1,5 +1,7 @@
 import { supabase } from "../supabase/supabaseClient";
 
+//sss
+
 export const friendshipService = {
   // 1. Enviar solicitud de amistad
     async sendRequest(requesterId, requestedId) {

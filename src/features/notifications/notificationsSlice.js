@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { friendshipService } from '../friendship/friendshipService'; // Ajusta la ruta
 import { groupObjectivesService } from '../groupObjectives/groupObjectivesService';
 
-// 1. Thunk para cargar notificaciones (Lógica movida desde el hook antiguo)
+// 1. Thunk para cargar notificaciones Lógica movida desde el hook antiguo
 export const fetchNotifications = createAsyncThunk(
     'notifications/fetchNotifications',
     async (userId, { rejectWithValue }) => {
