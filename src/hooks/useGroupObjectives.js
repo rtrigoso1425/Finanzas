@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
 
+//Ajustes
+
 export const useGroupObjectives = () => {
   const [myObjectives, setMyObjectives] = useState([]);
   const [invitations, setInvitations] = useState([]);

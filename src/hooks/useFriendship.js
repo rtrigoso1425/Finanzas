@@ -4,6 +4,9 @@ import { useDispatch } from 'react-redux';
 import { setFriendshipStatus } from '../features/user/userSlice'; 
 import { fetchNotifications } from '../features/notifications/notificationsSlice';
 
+
+//Ajustes
+
 export const useFriendship = (currentUser, targetUserId, initialStatus = 'none', initialFriendshipId = null) => {
     const dispatch = useDispatch();
     

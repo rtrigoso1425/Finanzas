@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/features/supabase/supabaseClient';
 
+
+//Ajustes
+
 export const useFetchUsers = () => {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

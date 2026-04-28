@@ -4,6 +4,9 @@ import { economyService } from '../features/economyService/economyService';
 import { groupObjectivesService } from '@/features/groupObjectives/groupObjectivesService';
 import { objectivesService } from '@/features/objectives/objectivesService';
 
+
+//Ajustes
+
 export const useBalance = () => {
     const [incomes, setIncomes] = useState([]);
     const [expenses, setExpenses] = useState([]);
