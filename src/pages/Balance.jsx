@@ -41,6 +41,8 @@ const BalancePage = () => {
 
   const recentTransactions = transactions.slice(0, 5);
 
+  //Ajustes a la página de Balance
+
   return (
     <div className="space-y-8 p-4 md:p-8">
       <div>

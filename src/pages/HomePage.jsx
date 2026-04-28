@@ -6,6 +6,10 @@ import { logout as logoutAction } from '@/features/auth/authSlice';
 import { HoverButton } from "@/components/ui/hover-button";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { HyperText } from "@/components/ui/hyper-text";
+
+
+//Ajustes a la página principal
+
 const HomePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();

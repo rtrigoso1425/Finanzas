@@ -13,6 +13,8 @@ import AdminPanel from '@/features/groupObjectivePage/AdminPanel';
 import ProgressPanel from '@/features/groupObjectivePage/ProgressPanel';
 import IncomeBar from '@/features/groupObjectivePage/IncomeBar';
 
+//Ajuste a la página de Objetivos Grupales
+
 const GrupalObjectivePage = () => {
   const { user } = useSelector((state) => state.auth);
   const { groupGoalId } = useParams();

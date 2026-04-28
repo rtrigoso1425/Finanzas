@@ -10,6 +10,8 @@ import BalanceBarChart from '@/features/dashboardPage/BalanceBarChart';
 import GroupObjectiveWidget from '@/features/dashboardPage/GroupObjectiveWidget';
 import TransactionsByTypeWidget from '@/features/dashboardPage/TransactionsByTypeWidget';
 
+//Ajustes a la página de DashBoard
+
 const DashboardPage = () => {
   
   const {incomes, expenses, groupExpenses, objectivesExpenses, isLoading} = useBalance();
