@@ -15,7 +15,7 @@ import SettingsPage from './pages/SettingsPage';
 import SearchPage from './pages/SearchPage';
 import FriendsPage from './pages/FriendsPage';
 import ObjectivesPage from './pages/ObjectivesPage';
-import BalancePage from './pages/Balance';
+import BalancePage from './pages/BalancePage';
 import GrupalObjectivesPage from './pages/GrupalObjectivesPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import NotificationsPage from './pages/NotificationsPage';

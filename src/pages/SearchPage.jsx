@@ -1,17 +1,15 @@
 // src/pages/SearchPage.jsx
 import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { SkeletonGrid } from "@/components/ui/skeleton";
 import UserCard from "@/components/profile-card"; 
-import { useFetchUsers } from "@/hooks/useFetchUsers"; // <--- Importamos nuestra lógica
+import { useFetchUsers } from "@/hooks/useFetchUsers";
 
 const SearchPage = () => {
-  // 1. Usamos el hook para traer los datos (Separación de lógica)
   const { users, isLoading } = useFetchUsers();
-  
-  // 2. Estado local solo para la interacción del buscador
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 3. Lógica de filtrado (Mínimo 3 letras)
   const showResults = searchTerm.length >= 3;
   
   const filteredUsers = showResults
@@ -21,62 +19,63 @@ const SearchPage = () => {
     : [];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black p-6 md:p-10">
-      
-      <div className="max-w-7xl mx-auto mb-10 space-y-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-          Explorar Comunidad
-        </h1>
-        
-        <div className="relative max-w-xl">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-zinc-800 rounded-xl leading-5 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-all shadow-sm"
-            placeholder="Buscar por username (mínimo 3 letras)..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* --- GRID DE RESULTADOS --- */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-        </div>
-      ) : (
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-black p-4 md:p-8 lg:p-10">
+      <BlurFade delay={0.1} inView>
+        <div className="max-w-7xl mx-auto mb-10 space-y-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            Explorar Comunidad
+          </h1>
           
-          {/* Caso A: Usuario no ha escrito suficiente */}
-          {!showResults ? (
-            <div className="col-span-full text-center py-20 opacity-50">
-              <Search className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-zinc-600" />
-              <p className="text-gray-500 dark:text-zinc-500 text-lg">
-                Ingresa al menos 3 letras para comenzar.
-              </p>
+          <div className="relative max-w-xl">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
             </div>
-          ) : (
-            
-            /* Caso B: Buscando... */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
-                  <UserCard key={user.id} user={user} />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-20">
-                  <p className="text-gray-500 dark:text-zinc-500 text-lg">
-                    No encontramos a nadie llamado "{searchTerm}".
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-zinc-800 rounded-xl leading-5 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-all shadow-sm"
+              placeholder="Buscar por username (mínimo 3 letras)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
-      )}
+      </BlurFade>
+
+      <BlurFade delay={0.2} inView>
+        {isLoading ? (
+          <div className="max-w-7xl mx-auto">
+            <SkeletonGrid count={8} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto">
+            
+            {!showResults ? (
+              <div className="col-span-full text-center py-20 opacity-50">
+                <Search className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-zinc-600" />
+                <p className="text-gray-500 dark:text-zinc-500 text-lg">
+                  Ingresa al menos 3 letras para comenzar.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user, index) => (
+                    <BlurFade key={user.id} delay={0.1 + index * 0.05} inView>
+                      <UserCard user={user} />
+                    </BlurFade>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-20">
+                    <p className="text-gray-500 dark:text-zinc-500 text-lg">
+                      No encontramos a nadie llamado "{searchTerm}".
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </BlurFade>
     </div>
   );
 };

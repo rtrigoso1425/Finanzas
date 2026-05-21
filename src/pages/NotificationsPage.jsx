@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { friendshipService } from '@/features/friendship/friendshipService';
+import { BlurFade } from '@/components/ui/blur-fade';
+import { SkeletonNotificationsPage } from '@/components/ui/skeleton';
 import { Loader2, UserPlus, Users, FileText, Check, X } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -151,23 +153,27 @@ const NotificationsPage = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">Notificaciones</h1>
+            <BlurFade delay={0.1} inView>
+                <h1 className="text-2xl font-bold mb-4">Notificaciones</h1>
+            </BlurFade>
 
             {loading ? (
-                <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                <SkeletonNotificationsPage />
             ) : (
-                <div className="space-y-6">
-                    {/* Renderizamos solo si hay items en los grupos */}
-                    {grouped.today.length > 0 && <Section title="Hoy" items={grouped.today} />}
-                    {grouped.this_week.length > 0 && <Section title="Esta semana" items={grouped.this_week} />}
-                    {grouped.this_month.length > 0 && <Section title="Este mes" items={grouped.this_month} />}
-                    {grouped.this_year.length > 0 && <Section title="Este año" items={grouped.this_year} />}
-                    {grouped.long_ago.length > 0 && <Section title="Hace mucho tiempo" items={grouped.long_ago} />}
-                    
-                    {notifications.length === 0 && (
-                        <div className="text-center text-muted-foreground py-10">No tienes notificaciones.</div>
-                    )}
-                </div>
+                <BlurFade delay={0.2} inView>
+                    <div className="space-y-6">
+                        {/* Renderizamos solo si hay items en los grupos */}
+                        {grouped.today.length > 0 && <Section title="Hoy" items={grouped.today} />}
+                        {grouped.this_week.length > 0 && <Section title="Esta semana" items={grouped.this_week} />}
+                        {grouped.this_month.length > 0 && <Section title="Este mes" items={grouped.this_month} />}
+                        {grouped.this_year.length > 0 && <Section title="Este año" items={grouped.this_year} />}
+                        {grouped.long_ago.length > 0 && <Section title="Hace mucho tiempo" items={grouped.long_ago} />}
+                        
+                        {notifications.length === 0 && (
+                            <div className="text-center text-muted-foreground py-10">No tienes notificaciones.</div>
+                        )}
+                    </div>
+                </BlurFade>
             )}
         </div>
     );

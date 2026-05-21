@@ -3,7 +3,6 @@ import { supabase } from '@/features/supabase/supabaseClient'; // Ajusta tu ruta
 // Función para probar la conversión
 export const testCurrencyConversion = async () => {
   try {
-    console.log("Calculando conversión...");
     
     const { data, error } = await supabase.functions.invoke('currency-converter', {
       body: { 
@@ -15,7 +14,7 @@ export const testCurrencyConversion = async () => {
 
     if (error) throw error;
 
-    console.log("¡Éxito! Resultado:", data);
+
     // data.convertedAmount tendrá el valor en dólares
     
   } catch (err) {

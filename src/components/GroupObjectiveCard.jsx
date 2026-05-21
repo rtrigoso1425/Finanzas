@@ -56,12 +56,12 @@ const GroupObjectiveCard = ({ membership }) => {
 
       <CardHeader className="pb-4 pt-2">
         <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-2xl font-bold text-slate-800 tracking-tight">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-2xl font-bold text-slate-800 tracking-tight line-clamp-2">
               {goal.objective_name}
             </CardTitle>
             {goal.description && (
-              <CardDescription className="text-sm text-slate-500 mt-1">
+              <CardDescription className="text-sm text-slate-500 mt-1 line-clamp-2">
                 {goal.description}
               </CardDescription>
             )}
@@ -107,7 +107,7 @@ const GroupObjectiveCard = ({ membership }) => {
         </div>
 
         {/* Sección de Progreso (Grid para aspecto de panel) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+        <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
           
           {/* Time Progress */}
           <div className="space-y-2">
@@ -115,23 +115,22 @@ const GroupObjectiveCard = ({ membership }) => {
               <span className={isOverdue ? 'text-red-500' : ''}>
                 {isOverdue ? 'Dias Excedidos' : 'Dias Restantes'}
               </span>
+              <span className={`font-mono text-sm ${isOverdue ? 'text-red-500' : 'text-green-600'}`}>
+                {isOverdue ? `-${Math.abs(daysLeft)}` : daysLeft}
+              </span>
             </div>
-            {/* Nota: className [&>div] inyecta el color verde si tu componente Progress de shadcn usa la variable primaria por defecto */}
             <Progress value={timeProgress} className="h-2 bg-slate-200 [&>div]:bg-green-400" />
-            <span className={`font-mono ${isOverdue ? 'text-red-500' : 'text-green-600'}`}>
-              {isOverdue ? `-${Math.abs(daysLeft)} DÍAS` : `${daysLeft} DÍAS`}
-            </span>
           </div>
 
           {/* Money Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
               <span>Dinero faltante</span>
+              <span className="font-mono text-sm text-green-600">
+                ${goal.remaining_amount}
+              </span>
             </div>
             <Progress value={moneyProgress} className="h-2 bg-slate-200 [&>div]:bg-green-500" />
-            <span className="font-mono text-green-600">
-                Falta: ${goal.remaining_amount} 
-            </span>
           </div>
 
         </div>

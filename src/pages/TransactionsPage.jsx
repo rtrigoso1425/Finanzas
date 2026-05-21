@@ -3,6 +3,8 @@ import { TrendingDown, TrendingUp, DollarSign, Receipt } from 'lucide-react';
 import { getTimeAgo } from "@/utils/timeAgo";
 import { useMemo } from "react";
 import { monthString } from "@/utils/monthString";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { SkeletonTransactionsPage } from "@/components/ui/skeleton";
 
 const Section = ({ title, items }) => {
 
@@ -103,32 +105,36 @@ const TransactionsPage = () => {
     
     return (
         <div className="max-w-3xl mx-auto p-6 bg-slate-50 rounded-2xl shadow-inner">
-            <h1 className="text-3xl font-extrabold mb-5 text-slate-800">Transacciones</h1>
+            <BlurFade delay={0.1} inView>
+                <h1 className="text-3xl font-extrabold mb-5 text-slate-800">Transacciones</h1>
+            </BlurFade>
             
             {isLoading ? (
-                <div className="flex justify-center items-center py-20">
-                    <p className="text-slate-500 font-medium animate-pulse">Cargando transacciones...</p>
-                </div>
+                <SkeletonTransactionsPage />
             ) : balance.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm mt-8">
-                    <div className="bg-slate-100 p-5 rounded-full mb-5 shadow-inner">
-                        <Receipt className="h-12 w-12 text-slate-400" strokeWidth={1.5} />
+                <BlurFade delay={0.2} inView>
+                    <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm mt-8">
+                        <div className="bg-slate-100 p-5 rounded-full mb-5 shadow-inner">
+                            <Receipt className="h-12 w-12 text-slate-400" strokeWidth={1.5} />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-700 mb-2">Aún no hay transacciones</h3>
+                        <p className="text-slate-500 max-w-sm text-sm">
+                            Tus ingresos, gastos y contribuciones aparecerán aquí una vez que comiences a registrarlos.
+                        </p>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-700 mb-2">Aún no hay transacciones</h3>
-                    <p className="text-slate-500 max-w-sm text-sm">
-                        Tus ingresos, gastos y contribuciones aparecerán aquí una vez que comiences a registrarlos.
-                    </p>
-                </div>
+                </BlurFade>
             ) : (
-                <div className="space-y-6">
-                    {groupedByMonth.map((group, index) => (
-                        <Section
-                            key={index}
-                            title={monthString(group[0])}
-                            items={group}
-                        />
-                    ))}
-                </div>
+                <BlurFade delay={0.2} inView>
+                    <div className="space-y-6">
+                        {groupedByMonth.map((group, index) => (
+                            <Section
+                                key={index}
+                                title={monthString(group[0])}
+                                items={group}
+                            />
+                        ))}
+                    </div>
+                </BlurFade>
             )}
         </div>
     );

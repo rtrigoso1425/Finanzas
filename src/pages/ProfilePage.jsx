@@ -3,6 +3,8 @@ import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { useFriendship } from '@/hooks/useFriendship';
 import { fetchUserByUsername, clearSearchedUser } from '../features/user/userSlice';
+import { BlurFade } from '@/components/ui/blur-fade';
+import { SkeletonAvatarWithName } from '@/components/ui/skeleton';
 import { Loader2, UserPlus, Clock, Check, X } from "lucide-react";
 
 const ProfilePage = () => {
@@ -41,7 +43,11 @@ const ProfilePage = () => {
 
     // Loading de la PÁGINA completa (incluye la carga de amistad ahora)
     if (pageStatus === 'loading') {
-        return <div className="flex justify-center p-10"><Loader2 className="animate-spin" /></div>;
+        return (
+            <div className="flex justify-center items-center min-h-screen p-4">
+                <SkeletonAvatarWithName />
+            </div>
+        );
     }
 
     if (pageStatus === 'failed') {
@@ -57,8 +63,9 @@ const ProfilePage = () => {
         // Loading de la ACCIÓN del botón (enviar/aceptar)
         if (loading) {
             return (
-                <button disabled className="bg-gray-200 text-gray-500 rounded-lg px-4 py-2 text-sm font-medium">
+                <button disabled className="w-full bg-gray-200 text-gray-500 rounded-lg px-4 py-2 text-sm font-medium flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
+                    Cargando...
                 </button>
             );
         }
@@ -66,29 +73,25 @@ const ProfilePage = () => {
         switch (currentFriendshipStatus) {
             case 'accepted':
                 return (
-                    <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
-                        <button disabled className="bg-green-100 text-green-700 border border-green-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2">
-                            <Check size={16} /> Amigos
-                        </button>
-                    </div>
+                    <button disabled className="w-full bg-green-100 text-green-700 border border-green-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center justify-center gap-2">
+                        <Check size={16} /> Amigos
+                    </button>
                 );
             case 'pending_sent':
                 return (
-                    <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
-                        <button disabled className="bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center gap-2 cursor-not-allowed">
-                            <Clock size={16} /> Pendiente
-                        </button>
-                    </div>
+                    <button disabled className="w-full bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-lg px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 cursor-not-allowed">
+                        <Clock size={16} /> Solicitud pendiente
+                    </button>
                 );
             case 'pending_received':
                 return (
-                    <div className='max-w-md mx-auto text-center mt-4 justify-center'>
-                        <span className="block mb-2 text-sm text-gray-600">Te envió una solicitud</span>
-                        <div className='flex gap-4 justify-center'>
-                            <button onClick={acceptFriendRequest} className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1 items-center">
+                    <div className='space-y-3'>
+                        <p className="text-sm text-gray-600">Te envió una solicitud</p>
+                        <div className='flex gap-2 flex-col sm:flex-row'>
+                            <button onClick={acceptFriendRequest} className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1 items-center justify-center">
                                 <Check size={18} /> Aceptar
                             </button>
-                            <button onClick={rejectFriendRequest} className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1 items-center">
+                            <button onClick={rejectFriendRequest} className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors flex gap-1 items-center justify-center">
                                 <X size={18} /> Rechazar
                             </button>
                         </div>
@@ -96,29 +99,33 @@ const ProfilePage = () => {
                 );
             default: // 'none'
                 return (
-                    <div className='max-w-md mx-auto text-center mt-4 flex gap-4 justify-center'>
-                        <button
-                            onClick={sendFriendRequest}
-                            className="bg-gray-900 dark:bg-zinc-800 text-white hover:bg-emerald-600 dark:hover:bg-emerald-600 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center gap-2"
-                        >
-                            <UserPlus size={16} /> Agregar
-                        </button>
-                    </div>
+                    <button
+                        onClick={sendFriendRequest}
+                        className="w-full bg-gray-900 dark:bg-zinc-800 text-white hover:bg-emerald-600 dark:hover:bg-emerald-600 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                        <UserPlus size={16} /> Agregar amigo
+                    </button>
                 );
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border border-gray-100 text-center">
-            <img 
-                src={searchedUser.avatar_url || "https://i.ibb.co/k6WjwY6N/default.jpg"} 
-                alt={searchedUser.username}
-                className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-50"
-            />
-            <h2 className="mt-4 text-xl font-bold text-slate-800">{searchedUser.full_name}</h2>
-            <p className="text-slate-500">@{searchedUser.username}</p>
-            {renderButton()}
-        </div>
+        <BlurFade delay={0.1} inView>
+            <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+                <div className="w-full max-w-md p-6 sm:p-8 bg-white rounded-xl shadow-md border border-gray-100 text-center space-y-4">
+                    <img 
+                        src={searchedUser.avatar_url || "https://i.ibb.co/k6WjwY6N/default.jpg"} 
+                        alt={searchedUser.username}
+                        className="w-20 sm:w-24 h-20 sm:h-24 rounded-full mx-auto object-cover border-4 border-slate-50"
+                    />
+                    <div className="space-y-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-800">{searchedUser.full_name}</h2>
+                        <p className="text-sm sm:text-base text-slate-500">@{searchedUser.username}</p>
+                    </div>
+                    {renderButton()}
+                </div>
+            </div>
+        </BlurFade>
     );
 }
 

@@ -11,7 +11,7 @@ const HomePage = () => {
   const dispatch = useDispatch();
   const { user, isLoading } = useSelector((state) => state.auth);
   const isPremium = user?.subscription === "Premium";
-  const logoRoute = user? (isPremium ? "../public/LogoPremium.png" : "../public/Logo.png") : "../public/Logo.png";
+  const logoRoute = user? (isPremium ? "https://i.ibb.co/yFZxG6wF/Logo-Premium.png" : "https://i.ibb.co/LhXRp3Nk/Logo.png") : "https://i.ibb.co/LhXRp3Nk/Logo.png";
   const onLogout = () => {
     authService.logout();
     dispatch(logoutAction());
@@ -109,7 +109,7 @@ const HomePage = () => {
             </BlurFade>
             <HyperText
               className="text-1xl font-bold text-black"
-              text="Controlando tus ingresos y gastos, un paso a la vez"
+              text="Controlando tus ingresos y gastos, controlados inteligentemente"
             />
           </div>
           <div 

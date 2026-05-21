@@ -5,6 +5,8 @@ import AddIncomeModal from '@/components/AddIncomeModal';
 import AddExpenseModal from '@/components/AddExpenseModal';
 import { useBalance } from '@/hooks/useBalance';
 import { CurrencySymbol } from '@/utils/currencySimbol';
+import { BlurFade } from '@/components/ui/blur-fade';
+import { SkeletonBalancePage } from '@/components/ui/skeleton';
 import {
   Card,
   CardHeader,
@@ -43,19 +45,19 @@ const BalancePage = () => {
 
   return (
     <div className="space-y-8 p-4 md:p-8">
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-          Balance Financiero
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Controla tus ingresos y gastos
-        </p>
-      </div>
+      <BlurFade delay={0.1} inView>
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            Balance Financiero
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm md:text-base">
+            Controla tus ingresos y gastos
+          </p>
+        </div>
+      </BlurFade>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500 dark:text-gray-400 text-lg animate-pulse">Cargando balance...</p>
-        </div>
+        <SkeletonBalancePage />
       ) : transactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm mt-8">
             <div className="bg-slate-100 p-5 rounded-full mb-5 shadow-inner">
@@ -76,9 +78,10 @@ const BalancePage = () => {
         </div>
       ) : (
         <div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800 border-emerald-200 dark:border-emerald-700">
+          <BlurFade delay={0.2} inView>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800 border-emerald-200 dark:border-emerald-700">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-emerald-900 dark:text-emerald-100">
@@ -171,73 +174,76 @@ const BalancePage = () => {
               </CardContent>
             </Card>
           </div>
+          </BlurFade>
 
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8">
-                Transacciones Recientes
-              </h2>
-              <Button variant="outline" className="mt-8" onClick={() => navigate('/transactions')}>
-                Ver todas
-              </Button>
-            </div>
+          <BlurFade delay={0.3} inView>
+            <div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8">
+                  Transacciones Recientes
+                </h2>
+                <Button variant="outline" className="mt-8 w-full sm:w-auto" onClick={() => navigate('/transactions')}>
+                  Ver todas
+                </Button>
+              </div>
 
-            <Card>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          Descripción
-                        </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          Tipo
-                        </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          Monto
-                        </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          Fecha
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentTransactions.map((transaction) => (
-                        <tr
-                          key={transaction.id}
-                          className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50"
-                        >
-                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                            {transaction.description}
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                transaction.type === 'income'
-                                  ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-100'
-                                  : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
-                              }`}
-                            >
-                              {transaction.type === 'income' ? 'Ingreso' : 'Gasto'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                            <span className={transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}>
-                              {transaction.type === 'income' ? '+' : '-'}{Symbol}{transaction.amount.toFixed(2)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                            {new Date( transaction.date ).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' })}
-                          </td>
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm md:text-base">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            Descripción
+                          </th>
+                          <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            Tipo
+                          </th>
+                          <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            Monto
+                          </th>
+                          <th className="px-3 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            Fecha
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                      </thead>
+                      <tbody>
+                        {recentTransactions.map((transaction) => (
+                          <tr
+                            key={transaction.id}
+                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50"
+                          >
+                            <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-900 dark:text-gray-100 truncate">
+                              {transaction.description}
+                            </td>
+                            <td className="px-3 md:px-6 py-4 text-xs md:text-sm">
+                              <span
+                                className={`inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs font-medium ${
+                                  transaction.type === 'income'
+                                    ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-100'
+                                    : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
+                                }`}
+                              >
+                                {transaction.type === 'income' ? 'Ingr.' : 'Gto.'}
+                              </span>
+                            </td>
+                            <td className="px-3 md:px-6 py-4 text-xs md:text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              <span className={transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}>
+                                {transaction.type === 'income' ? '+' : '-'}{Symbol}{transaction.amount.toFixed(2)}
+                              </span>
+                            </td>
+                            <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                              {new Date( transaction.date ).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </BlurFade>
         </div>
       )}
       <AddIncomeModal isOpen={IncomemodalOpen} onOpenChange={setIncomeModalOpen} />

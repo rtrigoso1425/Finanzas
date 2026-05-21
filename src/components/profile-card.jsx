@@ -34,8 +34,8 @@ const UserCard = ({ user }) => {
               onError={(e) => e.target.src = "https://i.ibb.co/k6WjwY6N/default.jpg"}
             />
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/30 dark:from-black/60 to-transparent pointer-events-none"></div>
-            <div className="absolute top-6 left-6">
-              <h2 className="text-2xl font-medium text-white drop-shadow-lg">
+            <div className="absolute top-6 left-6 right-6">
+              <h2 className="text-2xl font-medium text-white drop-shadow-lg line-clamp-2">
                 {user?.username || "Sin nombre"}
               </h2>
             </div>
@@ -50,12 +50,12 @@ const UserCard = ({ user }) => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="hover-translate">
-                <div className="text-sm text-gray-700 dark:text-zinc-200">
+              <div className="hover-translate flex-1 min-w-0">
+                <div className="text-sm text-gray-700 dark:text-zinc-200 line-clamp-1">
                   @{user?.username || "user"}
                 </div>
                 {/* Aquí mostramos el tiempo dinámico */}
-                <div className="text-xs text-gray-500 dark:text-zinc-500">
+                <div className="text-xs text-gray-500 dark:text-zinc-500 line-clamp-1">
                   Unido: {timeAgo}
                 </div>
               </div>

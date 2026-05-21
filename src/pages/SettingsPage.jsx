@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/features/supabase/supabaseClient";
 import { setUser } from "@/features/auth/authSlice";
 import { AvatarUploader } from "@/components/avatar-uploader";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { SkeletonSettingsPage } from "@/components/ui/skeleton";
 
 const SettingsPage = () => {
     const { user } = useSelector((state) => state.auth);
@@ -78,48 +80,55 @@ const SettingsPage = () => {
         }
     };
 
-    if (!user) return <div>Cargando...</div>;
+    if (!user) return <SkeletonSettingsPage />;
 
     return (
         <div className="overflow-y-auto pb-10">
-            {/* Pasamos user.avatar_url para el fondo también */}
-            <ProfileBg defaultImage={user.avatar_url} />
-            <Avatar user={user} dispatch={dispatch} />
+            <BlurFade delay={0.1} inView>
+                {/* Pasamos user.avatar_url para el fondo también */}
+                <ProfileBg defaultImage={user.avatar_url} />
+            </BlurFade>
+
+            <BlurFade delay={0.2} inView>
+                <Avatar user={user} dispatch={dispatch} />
+            </BlurFade>
             
-            <div className="px-6 pb-6 pt-4">
-                <form onSubmit={handleSaveChanges} className="space-y-6">
-                    {error && (
-                        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                            <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-                        </div>
-                    )}
-                    <div className="space-y-2">
-                        <Label htmlFor="username">Username</Label>
-                        <div className="relative">
-                            <Input
-                                id="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                className="peer pe-9"
-                                placeholder="username"
-                                type="text"
-                                required
-                            />
-                            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground/80 peer-disabled:opacity-50">
-                                <Check size={16} strokeWidth={2} className="text-emerald-500" aria-hidden="true" />
+            <BlurFade delay={0.3} inView>
+                <div className="px-6 pb-6 pt-4">
+                    <form onSubmit={handleSaveChanges} className="space-y-6">
+                        {error && (
+                            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <Label htmlFor="username">Username</Label>
+                            <div className="relative">
+                                <Input
+                                    id="username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    className="peer pe-9"
+                                    placeholder="username"
+                                    type="text"
+                                    required
+                                />
+                                <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground/80 peer-disabled:opacity-50">
+                                    <Check size={16} strokeWidth={2} className="text-emerald-500" aria-hidden="true" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center justify-between">
-                        {successMsg && <p className="text-sm text-green-600 font-medium">{successMsg}</p>}
-                        <Button type="submit" disabled={isLoading} className="ml-auto">
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Guardar Cambios
-                        </Button>
-                    </div>
-                </form>
-            </div>
+                        <div className="flex items-center justify-between">
+                            {successMsg && <p className="text-sm text-green-600 font-medium">{successMsg}</p>}
+                            <Button type="submit" disabled={isLoading} className="ml-auto">
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Guardar Cambios
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </BlurFade>
         </div>
     );
 };

@@ -1,6 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import { objectivesService } from '@/features/objectives/objectivesService';
+import { BlurFade } from '@/components/ui/blur-fade';
+import { SkeletonDetailHeader } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Target } from 'lucide-react';
@@ -34,8 +36,16 @@ const ObjectivePage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <span className="text-sm font-medium text-muted-foreground">Cargando objetivo…</span>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 bg-slate-50 min-h-screen">
+        <SkeletonDetailHeader />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <div className="h-96 bg-neutral-200/50 rounded-lg animate-pulse"></div>
+          </div>
+          <div className="lg:col-span-4 space-y-4">
+            <div className="h-64 bg-neutral-200/50 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -56,44 +66,47 @@ const ObjectivePage = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 bg-slate-50 min-h-screen">
-      
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div className="flex items-start gap-4">
-          <div className="hidden sm:flex h-12 w-12 rounded-full bg-emerald-100 border-2 border-emerald-50 items-center justify-center text-emerald-600 shrink-0 mt-1">
-            <Target className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
-                {objective.reason}
-              </h1>
-              {isCompleted && (
-                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
-                  <CheckCircle className="w-3 h-3 mr-1" /> Completado
-                </Badge>
+      <BlurFade delay={0.1} inView>
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div className="flex items-start gap-4">
+            <div className="hidden sm:flex h-12 w-12 rounded-full bg-emerald-100 border-2 border-emerald-50 items-center justify-center text-emerald-600 shrink-0 mt-1">
+              <Target className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-1 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
+                  {objective.reason}
+                </h1>
+                {isCompleted && (
+                  <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
+                    <CheckCircle className="w-3 h-3 mr-1" /> Completado
+                  </Badge>
+                )}
+              </div>
+              {objective.description && (
+                <p className="text-sm text-slate-500 max-w-2xl">{objective.description}</p>
               )}
             </div>
-            {objective.description && (
-              <p className="text-sm text-slate-500 max-w-2xl">{objective.description}</p>
-            )}
           </div>
-        </div>
-      </header>
+        </header>
+      </BlurFade>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <div className="lg:col-span-8 space-y-6">
-          <ObjectiveProgressPanel objective={objective} />
-        </div>
+      <BlurFade delay={0.2} inView>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <div className="lg:col-span-8 space-y-6">
+            <ObjectiveProgressPanel objective={objective} />
+          </div>
 
-        <ObjectiveIncomeBar 
-          incomes={incomes} 
-          remainingAmount={remainingAmount}
-          isCompleted={isCompleted}
-          isOverdue={isOverdue}
-          onOpenAddModal={() => setIncomeModalOpen(true)}
-        />
-      </div>
+          <ObjectiveIncomeBar 
+            incomes={incomes} 
+            remainingAmount={remainingAmount}
+            isCompleted={isCompleted}
+            isOverdue={isOverdue}
+            onOpenAddModal={() => setIncomeModalOpen(true)}
+          />
+        </div>
+      </BlurFade>
 
       <AddObjectiveIncomeModal
         isOpen={incomeModalOpen}

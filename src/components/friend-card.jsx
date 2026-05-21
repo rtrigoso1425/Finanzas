@@ -141,8 +141,8 @@ export function FriendCard({
 
           {/* Name and title */}
           <h2
-            className="text-2xl font-semibold text-card-foreground mb-2 tracking-tight">{name}</h2>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-light">{title}</p>
+            className="text-2xl font-semibold text-card-foreground mb-2 tracking-tight line-clamp-2">{name}</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-light line-clamp-2">{title}</p>
           {/* Stats 
           <div
             className="grid grid-cols-3 gap-4 mb-6 py-4 border-t border-b border-border">

@@ -6,6 +6,8 @@ import { groupObjectivesService } from '@/features/groupObjectives/groupObjectiv
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { BlurFade } from '@/components/ui/blur-fade';
+import { SkeletonGrupalObjectivePage } from '@/components/ui/skeleton';
 import AddContributionModal from '@/components/AddContributionModal';
 import InviteFriendsModal from '@/components/InviteFriendsModal';
 import { CheckCircle, Wallet, Crown } from 'lucide-react';
@@ -52,11 +54,7 @@ const GrupalObjectivePage = () => {
   }, [members]);
 
   if (loading || !groupObjective) {
-    return (
-      <div className="flex h-full items-center justify-center py-14">
-        <span className="text-sm font-medium text-muted-foreground">Cargando objetivo…</span>
-      </div>
-    );
+    return <SkeletonGrupalObjectivePage />;
   }
 
   const remainingAmount = Number(groupObjective.remaining_amount ?? 0);
@@ -67,65 +65,67 @@ const GrupalObjectivePage = () => {
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 bg-slate-50 min-h-screen">
       
       {/* HEADER DE LA PÁGINA */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
-              {groupObjective.objective_name}
-            </h1>
-            {isCompleted && (
-              <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
-                <CheckCircle className="w-3 h-3 mr-1" /> Completado
+      <BlurFade delay={0.1} inView>
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div>
+            <div className="flex items-center gap-3 mb-1 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
+                {groupObjective.objective_name}
+              </h1>
+              {isCompleted && (
+                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
+                  <CheckCircle className="w-3 h-3 mr-1" /> Completado
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-slate-500 max-w-2xl">{groupObjective.description}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-3 mr-2">
+              {activeMembers.slice(0, 4).map((member) => {
+                const isMemberOwner = member.member_id === groupObjective.owner_id;
+                return (
+                  <div key={member.id} className="relative">
+                    {isMemberOwner && (
+                      <Crown className="absolute -top-3 -right-1 z-20 w-4 h-4 text-amber-500 drop-shadow-sm rotate-12" />
+                    )}
+                    <Avatar 
+                      className={`w-10 h-10 border-2 border-white relative z-10 ${
+                        isMemberOwner ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-white' : ''
+                      }`}
+                    >
+                      <AvatarImage src={member.profiles?.avatar_url} />
+                      <AvatarFallback className="bg-slate-100 text-xs text-slate-600 font-medium">
+                        {member.profiles?.full_name?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                );
+              })}
+              {activeMembers.length > 4 && (
+                <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-xs font-medium text-slate-600 z-10">
+                  +{activeMembers.length - 4}
+                </div>
+              )}
+            </div>
+            {myMembership && !isCompleted && !isOverdue && (
+              <Button 
+                className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-200"
+                onClick={() => setContributionModalOpen(true)}
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Nuevo Aporte
+              </Button>
+            )}
+            {isOverdue && (
+              <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
+                Vencido
               </Badge>
             )}
           </div>
-          <p className="text-sm text-slate-500 max-w-2xl">{groupObjective.description}</p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-3 mr-2">
-            {activeMembers.slice(0, 4).map((member) => {
-              const isMemberOwner = member.member_id === groupObjective.owner_id;
-              return (
-                <div key={member.id} className="relative">
-                  {isMemberOwner && (
-                    <Crown className="absolute -top-3 -right-1 z-20 w-4 h-4 text-amber-500 drop-shadow-sm rotate-12" />
-                  )}
-                  <Avatar 
-                    className={`w-10 h-10 border-2 border-white relative z-10 ${
-                      isMemberOwner ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-white' : ''
-                    }`}
-                  >
-                    <AvatarImage src={member.profiles?.avatar_url} />
-                    <AvatarFallback className="bg-slate-100 text-xs text-slate-600 font-medium">
-                      {member.profiles?.full_name?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              );
-            })}
-            {activeMembers.length > 4 && (
-              <div className="w-10 h-10 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-xs font-medium text-slate-600 z-10">
-                +{activeMembers.length - 4}
-              </div>
-            )}
-          </div>
-          {myMembership && !isCompleted && !isOverdue && (
-            <Button 
-              className="bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-200"
-              onClick={() => setContributionModalOpen(true)}
-            >
-              <Wallet className="w-4 h-4 mr-2" />
-              Nuevo Aporte
-            </Button>
-          )}
-          {isOverdue && (
-            <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
-              Vencido
-            </Badge>
-          )}
-        </div>
-      </header>
+        </header>
+      </BlurFade>
 
       {/* GRID PRINCIPAL: 2/3 Izquierda, 1/3 Derecha */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -134,26 +134,32 @@ const GrupalObjectivePage = () => {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Tarjeta de Progreso Financiero */}
-          <ProgressPanel groupObjective={groupObjective} />
+          <BlurFade delay={0.2} inView>
+            <ProgressPanel groupObjective={groupObjective} />
+          </BlurFade>
 
           {/* PANEL DE CONTROL DEL OWNER */}
           {isOwner && (
-            <AdminPanel 
-              members={members} 
-              setInviteModalOpen={setInviteModalOpen}
-              fetchGroupObjective={fetchGroupObjective} 
-            />
+            <BlurFade delay={0.3} inView>
+              <AdminPanel 
+                members={members} 
+                setInviteModalOpen={setInviteModalOpen}
+                fetchGroupObjective={fetchGroupObjective} 
+              />
+            </BlurFade>
           )}
         </div>
 
         {/* COLUMNA DERECHA (Barra lateral de Aportes) */}
-        <IncomeBar 
-          incomes={incomes} 
-          groupObjective={groupObjective}
-          fetchGroupObjective={fetchGroupObjective}
-          isOwner={isOwner}
-          isOverdue={isOverdue}
-        />
+        <BlurFade delay={0.4} inView className="lg:col-span-4">
+          <IncomeBar 
+            incomes={incomes} 
+            groupObjective={groupObjective}
+            fetchGroupObjective={fetchGroupObjective}
+            isOwner={isOwner}
+            isOverdue={isOverdue}
+          />
+        </BlurFade>
       </div>
 
       {/* Modales */}
